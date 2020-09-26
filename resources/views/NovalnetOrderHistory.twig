@@ -1,0 +1,39 @@
+{% if paymentDetails is not empty %}
+<div class="row">
+        <strong class="col-6 col-sm-5">{{trans("Novalnet::PaymentMethod.novalnet_details")}}</strong>
+        <span class="col-6 col-sm-7">
+                <div>{{trans("Novalnet::PaymentMethod.nn_tid")}} {{paymentDetails.tid}}</div>
+                {% if paymentDetails.test_mode is not empty%}
+                <div>{{trans("Novalnet::PaymentMethod.test_order")}}</div>
+                {% endif %}
+                {% if bankDetails is not empty %}
+                <br><div>{{trans("Novalnet::PaymentMethod.transfer_amount_text")}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.account_holder_novalnet")}} {{bankDetails.invoice_account_holder}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.iban")}} {{bankDetails.invoice_iban}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.bic")}} {{bankDetails.invoice_bic}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.due_date")}} {{bankDetails.due_date}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.bank")}} {{bankDetails.invoice_bankname}} {{bankDetails.invoice_bankname}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.amount")}} {{bankDetails.amount}} {{bankDetails.currency}}</div>
+                <br><div>{{trans("Novalnet::PaymentMethod.any_one_reference_text")}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.payment_reference1")}}  BNR-{{bankDetails.product_id}}-{{bankDetails.order_no}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.payment_reference2")}} TID {{bankDetails.tid}}</div>
+                {% endif %}
+        </span>
+</div>
+    
+{% if bankDetails.payment_id == 96 %}
+        <br><div class="row" id="nnInstalmentDetails">
+                <strong class="col-6 col-sm-5">{{trans("Novalnet::PaymentMethod.instalment_info")}}</strong>
+                <span class="col-6 col-sm-7">
+                        <div>{{trans("Novalnet::PaymentMethod.total_paid_amount_text")}} {{bankDetails.total_paid_amount}} {{bankDetails.currency}}</div>
+                        <div>{{trans("Novalnet::PaymentMethod.instalment_cycle_amount_text")}} {{bankDetails.instalment_cycle_amount}} {{bankDetails.currency}}</div>
+                        <div>{{trans("Novalnet::PaymentMethod.paid_instalment_text")}} {{bankDetails.paid_instalment}}</div>
+                        <div>{{trans("Novalnet::PaymentMethod.due_instalment_text")}} {{bankDetails.due_instalment}}</div>
+                        <div>{{trans("Novalnet::PaymentMethod.next_instalment_text")}} {{bankDetails.next_instalment}}</div>
+                </span>
+        </div>
+{% endif %}
+    
+{% endif %}
+
+
