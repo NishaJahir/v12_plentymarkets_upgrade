@@ -321,7 +321,7 @@
                "required":false,
                "label":"Config.paymentLogoLabel",
                "options":{
-                  "defaultValue":"images/nn_sepa.png"
+                  "defaultValue":"images/novalnet_sepa.png"
                }
             },
             "novalnet_sepa_shopping_type":{
@@ -437,7 +437,7 @@
                "required":false,
                "label":"Config.paymentLogoLabel",
                "options":{
-                  "defaultValue":"images/nn_invoice.png"
+                  "defaultValue":"images/novalnet_invoice.png"
                }
             },
             "novalnet_invoice_due_date":{
@@ -544,7 +544,7 @@
                "required":false,
                "label":"Config.paymentLogoLabel",
                "options":{
-                  "defaultValue":"images/nn_invoice.png"
+                  "defaultValue":"images/novalnet_invoice.png"
                }
             },
             "novalnet_instalment_invoice_payment_action":{
@@ -706,7 +706,7 @@
                "required":false,
                "label":"Config.paymentLogoLabel",
                "options":{
-                  "defaultValue":"images/nn_paypal.png"
+                  "defaultValue":"images/novalnet_paypal.png"
                }
             },
             "novalnet_paypal_shopping_type":{
