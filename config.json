@@ -4,30 +4,12 @@
       "Config.NovalnetGlobalConfigurationTab":{
          "label":"Config.NovalnetGlobalConfigurationTab",
          "formFields":{
-            "novalnet_vendor_id":{
+            "novalnet_public_key":{
                "type":"inputText",
                "required":false,
-               "label":"Config.vendorIdLabel",
+               "label":"Config.publicKeyLabel",
                "options":{
-                  "tooltip":"Config.vendorIdTooltip",
-                  "defaultValue":""
-               }
-            },
-            "novalnet_auth_code":{
-               "type":"inputText",
-               "required":false,
-               "label":"Config.authCodeLabel",
-               "options":{
-                  "tooltip":"Config.authCodeTooltip",
-                  "defaultValue":""
-               }
-            },
-            "novalnet_product_id":{
-               "type":"inputText",
-               "required":false,
-               "label":"Config.productIdLabel",
-               "options":{
-                  "tooltip":"Config.productIdTooltip",
+                  "tooltip":"Config.publicKeyTooltip",
                   "defaultValue":""
                }
             },
