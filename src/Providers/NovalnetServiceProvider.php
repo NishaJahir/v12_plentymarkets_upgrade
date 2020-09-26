@@ -186,6 +186,7 @@ class NovalnetServiceProvider extends ServiceProvider
 								$content = '';
 								$contentType = 'continue';
 								$serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);
+								$this->getLogger(__METHOD__)->error('request', $serverRequestData);
 								if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
 										$content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
 										$contentType = 'errorCode';   
