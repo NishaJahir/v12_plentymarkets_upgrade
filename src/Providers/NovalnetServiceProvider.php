@@ -100,31 +100,31 @@ class NovalnetServiceProvider extends ServiceProvider
     {
 
         // Register the Novalnet payment methods in the payment method container
-        $payContainer->register('plenty_novalnet::NOVALNET_CC', NovalnetCcPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_CC', NovalnetCcPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_SEPA', NovalnetSepaPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_SEPA', NovalnetSepaPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-	    $payContainer->register('plenty_novalnet::NOVALNET_INVOICE', NovalnetInvoicePaymentMethod::class,
+	    $payContainer->register('Novalnet::NOVALNET_INVOICE', NovalnetInvoicePaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_INSTALMENT_INVOICE', NovalnetInstalmentbyInvoicePaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_INSTALMENT_INVOICE', NovalnetInstalmentbyInvoicePaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_PAYPAL', NovalnetPaypalPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_PAYPAL', NovalnetPaypalPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
