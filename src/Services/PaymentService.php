@@ -297,9 +297,9 @@ class PaymentService
         $paymentKeyLower = strtolower((string) $paymentKey);
         $testModeKey = 'Novalnet.' . $paymentKeyLower . '_test_mode';
 
-        $paymentRequestData = [];
+        $paymentRequestParameters = [];
         // Build Merchant Data
-        $paymentRequestData['merchant'] = [
+        $paymentRequestParameters['merchant'] = [
             'signature' => $this->paymentHelper->getNovalnetConfig('novalnet_public_key'),
             'tariff'    => $this->paymentHelper->getNovalnetConfig('novalnet_tariff_id'),
         ];
@@ -347,18 +347,18 @@ class PaymentService
         }
 
         if(!empty($billingAddress->companyName)) {
-            $paymentRequestData['customer']['billing']['company'] = $billingAddress->companyName;
+            $paymentRequestParameters['customer']['billing']['company'] = $billingAddress->companyName;
         } elseif(!empty($shippingAddress->companyName)) {
-            $paymentRequestData['customer']['shipping']['company'] = $shippingAddress->companyName;
+            $paymentRequestParameters['customer']['shipping']['company'] = $shippingAddress->companyName;
         }
 
         if(!empty($billingAddress->phone)) {
-            $paymentRequestData['tel'] = $billingAddress->phone;
+            $paymentRequestParameters['tel'] = $billingAddress->phone;
         }
 
         $url = NovalnetConstants::PAYMENT_URL;
         return [
-            'data' => $paymentRequestData,
+            'data' => $paymentRequestParameters,
             'url'  => $url
         ];
     }
