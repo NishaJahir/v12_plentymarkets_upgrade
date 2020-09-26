@@ -556,8 +556,7 @@ class PaymentHelper
     public function paymentActive()
     {
         $paymentDisplay = false;
-        if (is_numeric($this->getNovalnetConfig('novalnet_vendor_id')) && !empty($this->getNovalnetConfig('novalnet_auth_code')) && is_numeric($this->getNovalnetConfig('novalnet_product_id')) 
-        && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('novalnet_access_key')))
+        if (!empty($this->getNovalnetConfig('novalnet_public_key')) && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('novalnet_access_key')))
         {
             $paymentDisplay = true;
         }
