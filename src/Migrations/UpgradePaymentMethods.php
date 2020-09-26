@@ -71,13 +71,13 @@ class UpgradePaymentMethods
         $payment_data = $this->paymentHelper->getPaymentMethodByKey($paymentKey);
         if ($payment_data == 'no_paymentmethod_found')
         {
-            $paymentMethodData = ['pluginKey'  => 'Novalnet',
+            $paymentMethodData = ['pluginKey'  => 'plenty_novalnet',
                                 'paymentKey' => $paymentKey,
                                 'paymentName' => $paymentName
                                ];
             $this->paymentMethodRepository->createPaymentMethod($paymentMethodData);
         } elseif ($payment_data[1] == $paymentKey && !in_array ($payment_data[2], ['Novalnet Credit Card', 'Novalnet SEPA direct debit', 'Novalnet Invoice', 'Novalnet PayPal']) ) {
-            $paymentMethodData = ['pluginKey'  => 'Novalnet',
+            $paymentMethodData = ['pluginKey'  => 'plenty_novalnet',
                                 'paymentKey' => $paymentKey,
                                 'paymentName' => $paymentName,
                                 'id' => $payment_data[0]
