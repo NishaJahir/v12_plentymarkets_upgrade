@@ -191,6 +191,17 @@ class NovalnetPaypalPaymentMethod extends PaymentMethodBaseService
     {
         return false;
     }
+    
+    /**
+     * Get name for the backend
+     *
+     * @param  string  $lang
+     * @return string
+     */
+    public function getBackendName(string $lang = 'de'):string
+    {
+        return 'Novalnet PayPal';
+    }
 
     /**
      * Check if this payment method can handle subscriptions
