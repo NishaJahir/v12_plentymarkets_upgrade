@@ -420,10 +420,10 @@ class PaymentService
 					$paymentRequestData['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
 				}
 			} else if($paymentKey == 'NOVALNET_INVOICE') {
-				$paymentRequestData['invoice_type'] = 'INVOICE';
+				$paymentRequestData['transaction']['invoice_type'] = 'INVOICE';
 				$invoiceDueDate = $this->paymentHelper->getNovalnetConfig('novalnet_invoice_due_date');
 				if(is_numeric($invoiceDueDate)) {
-					$paymentRequestData['due_date'] = $this->paymentHelper->dateFormatter($invoiceDueDate);
+					$paymentRequestData['transaction']['due_date'] = $this->paymentHelper->dateFormatter($invoiceDueDate);
 				}
 			}
         }
