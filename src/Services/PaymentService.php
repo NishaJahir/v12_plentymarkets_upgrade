@@ -292,6 +292,9 @@ class PaymentService
         }
 		$customerName = $this->getCustomerName($billingAddress);
 
+	$this->getLogger(__METHOD__)->error('basket', $basket);
+	    $this->getLogger(__METHOD__)->error('shipping', $shippingAddress);
+	    $this->getLogger(__METHOD__)->error('billing', $billingAddress);
         $account = pluginApp(AccountService::class);
         $customerId = $account->getAccountContactId();
         $paymentKeyLower = strtolower((string) $paymentKey);
