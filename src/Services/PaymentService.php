@@ -327,7 +327,7 @@ class PaymentService
                 'street'   => !empty($shippingAddress->street) ? $shippingAddress->street : $billingAddress->street,
                 'house_no'     => !empty($shippingAddress->houseNumber) ? $shippingAddress->street : $billingAddress->houseNumber,
                 'city'     => !empty($shippingAddress->town) ? $shippingAddress->street : $billingAddress->town,
-                'postcode' => !empty($shippingAddress->postalCode) ? $shippingAddress->street : $billingAddress->postalCode,
+                'zip' => !empty($shippingAddress->postalCode) ? $shippingAddress->street : $billingAddress->postalCode,
                 'country_code' => !empty($shippingAddress->countryId) ? $this->countryRepository->findIsoCode($shippingAddress->countryId, 'iso_code_2') : $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
             ],
         ];
@@ -777,7 +777,7 @@ class PaymentService
 	public function paymentCalltoNovalnetServer () {
 		  
 		$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
-		$serverRequestData['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
+		$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
 		$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 		$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
         $this->getLogger(__METHOD__)->error('response formation', $response);
