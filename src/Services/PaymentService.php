@@ -358,7 +358,11 @@ class PaymentService
         if(!empty($billingAddress->phone)) {
             $paymentRequestParameters['tel'] = $billingAddress->phone;
         }
-
+	
+	 $this->getPaymentData($paymentKey, $paymentRequestParameters);
+	    $this->getLogger(__METHOD__)->error('servoce request error', $paymentRequestParameters);
+$this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParameters);
+	    
         $url = NovalnetConstants::PAYMENT_URL;
         return [
             'data' => $paymentRequestParameters,
@@ -398,49 +402,49 @@ class PaymentService
      * @param array $paymentRequestData
      * @param string $paymentKey
      */
-    public function getPaymentData($paymentKey, &$paymentRequestData )
+    public function getPaymentData($paymentKey, &$paymentRequestParameters )
     {
         $url = $this->getpaymentUrl($paymentKey);
         if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_PAYPAL', 'NOVALNET_INVOICE', 'NOVALNET_INSTALMENT_INVOICE'])) {
             $onHoldLimit = $this->paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_on_hold');
             $onHoldAuthorize = $this->paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_payment_action');
 			if((is_numeric($onHoldLimit) && $paymentRequestData['amount'] >= $onHoldLimit && $onHoldAuthorize == 'true') || ($onHoldAuthorize == 'true' && empty($onHoldLimit))) {
-				$paymentRequestData['on_hold'] = 1;
+				$paymentRequestParameters['on_hold'] = 1;
 			}
 			if($paymentKey == 'NOVALNET_CC') {
 				if($this->config->get('Novalnet.novalnet_cc_3d') == 'true' || $this->config->get('Novalnet.novalnet_cc_3d_fraudcheck') == 'true' ) {
 				if($this->config->get('Novalnet.novalnet_cc_3d') == 'true') {
-					$paymentRequestData['cc_3d'] = 1;
+					$paymentRequestParameters['cc_3d'] = 1;
 				}
 				// $url = NovalnetConstants::CC3D_PAYMENT_URL;
 				}
 			} else if($paymentKey == 'NOVALNET_SEPA') {
 				$dueDate = $this->paymentHelper->getNovalnetConfig('novalnet_sepa_due_date');
 				if(is_numeric($dueDate) && $dueDate >= 2 && $dueDate <= 14) {
-					$paymentRequestData['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
+					$paymentRequestParameters['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
 				}
 			} else if($paymentKey == 'NOVALNET_INVOICE') {
-				$paymentRequestData['transaction']['invoice_type'] = 'INVOICE';
+				$paymentRequestParameters['transaction']['invoice_type'] = 'INVOICE';
 				$invoiceDueDate = $this->paymentHelper->getNovalnetConfig('novalnet_invoice_due_date');
 				if(is_numeric($invoiceDueDate)) {
-					$paymentRequestData['transaction']['due_date'] = $this->paymentHelper->dateFormatter($invoiceDueDate);
+					$paymentRequestParameters['transaction']['due_date'] = $this->paymentHelper->dateFormatter($invoiceDueDate);
 				}
 			}
         }
 
         if($this->isRedirectPayment($paymentKey))
         {
-			$paymentRequestData['uniqid'] = $this->paymentHelper->getUniqueId();
-			$this->encodePaymentData($paymentRequestData);
-			$paymentRequestData['implementation'] = 'ENC';
-			$paymentRequestData['return_url'] = $paymentRequestData['error_return_url'] = $this->getReturnPageUrl();
-			$paymentRequestData['return_method'] = $paymentRequestData['error_return_method'] = 'POST';
+			$paymentRequestParameters['uniqid'] = $this->paymentHelper->getUniqueId();
+			$this->encodePaymentData($paymentRequestParameters);
+			$paymentRequestParameters['implementation'] = 'ENC';
+			$paymentRequestParameters['return_url'] = $paymentRequestParameters['error_return_url'] = $this->getReturnPageUrl();
+			$paymentRequestParameters['return_method'] = $paymentRequestParameters['error_return_method'] = 'POST';
 			if ($paymentKey != 'NOVALNET_CC') {
-				$paymentRequestData['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+				$paymentRequestParameters['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
 			}
          }
         
-        return $url;
+        //return $url;
     }
 
     /**
