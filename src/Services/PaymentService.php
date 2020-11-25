@@ -424,7 +424,6 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 					$paymentRequestParameters['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
 				}
 			} else if($paymentKey == 'NOVALNET_INVOICE') {
-				$paymentRequestParameters['transaction']['invoice_type'] = 'INVOICE';
 				$invoiceDueDate = $this->paymentHelper->getNovalnetConfig('novalnet_invoice_due_date');
 				if(is_numeric($invoiceDueDate)) {
 					$paymentRequestParameters['transaction']['due_date'] = $this->paymentHelper->dateFormatter($invoiceDueDate);
@@ -546,7 +545,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     public function getTypeByPaymentKey($paymentKey)
     {
         $payment = [
-            'NOVALNET_INVOICE'=>'INVOICE_START',
+            'NOVALNET_INVOICE'=>'INVOICE',
             'NOVALNET_CC'=>'CREDITCARD',
             'NOVALNET_SEPA'=>'DIRECT_DEBIT_SEPA',
             'NOVALNET_PAYPAL'=>'PAYPAL'
