@@ -194,13 +194,13 @@ class PaymentHelper
         
         $payment->mopId           = (int) $requestData['mop'];
         $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
-        $payment->status          = ($requestData['type'] == 'confirmed' ? Payment::STATUS_APPROVED : ($requestData['type'] == 'cancel' ? Payment::STATUS_CANCELED : Payment::STATUS_CAPTURED));
-        $payment->currency        = $requestData['currency'];
-        $payment->amount          = $requestData['paid_amount'];
+        $payment->status          = ($requestData['transaction']['status'] == 'FAILURE' ? Payment::STATUS_CANCELED : (in_array($requestData['transaction']['status'], ['PENDING', 'ON_HOLD']) ? Payment::STATUS_APPROVED : Payment::STATUS_CAPTURED));
+        $payment->currency        = $requestData['transaction']['currency'];
+        $payment->amount          = (in_array($requestData['transaction']['status'], ['PENDING', 'ON_HOLD', 'FAILURE']) ? 0 : $requestData['transaction']['amount']);
         if(isset($requestData['booking_text']) && !empty($requestData['booking_text'])) {
         $bookingText = $requestData['booking_text'];
         } else {
-        $bookingText = $requestData['tid'];
+        $bookingText = $requestData['transaction']['tid'];
         }
         $transactionId = $requestData['tid'];
          if(!empty($requestData['type']) && $requestData['type'] == 'debit')
@@ -211,15 +211,15 @@ class PaymentHelper
 
         $paymentProperty     = [];
         $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_BOOKING_TEXT, $bookingText);
-        $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $transactionId);
+        $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_TRANSACTION_ID, $requestData['transaction']['tid']);
         $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_ORIGIN, Payment::ORIGIN_PLUGIN);
-        $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_EXTERNAL_TRANSACTION_STATUS, $requestData['tid_status']);
+        $paymentProperty[]   = $this->getPaymentProperty(PaymentProperty::TYPE_EXTERNAL_TRANSACTION_STATUS, $requestData['transaction']['status']);
         
         $payment->properties = $paymentProperty;
         
         $paymentObj = $this->paymentRepository->createPayment($payment);
         
-        $this->assignPlentyPaymentToPlentyOrder($paymentObj, (int)$requestData['order_no']);
+        $this->assignPlentyPaymentToPlentyOrder($paymentObj, (int)$requestData['transaction']['order_no']);
     }
     
 
