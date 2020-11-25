@@ -188,7 +188,7 @@ class PaymentService
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
-        if(nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD'])))
+        if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD'])))
             $transactionData['callback_amount'] = 0;    
 
         $this->transactionLogData->saveTransaction($transactionData);
