@@ -159,7 +159,7 @@ class PaymentService
         $nnPaymentData['mop']            = $this->sessionStorage->getPlugin()->getValue('mop');
         $nnPaymentData['payment_method'] = strtolower($this->paymentHelper->getPaymentKeyByMop($nnPaymentData['mop']));
         
-	if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS']) {
+	if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
 	   $this->paymentHelper->createPlentyPayment($nnPaymentData);
 	}
         //$this->executePayment($nnPaymentData);
