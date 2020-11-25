@@ -155,11 +155,14 @@ class PaymentService
     {
         $nnPaymentData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
         $this->sessionStorage->getPlugin()->setValue('nnPaymentData', null);
-       
+        $this->getLogger(__METHOD__)->error('validate response', $nnPaymentData);
         $nnPaymentData['mop']            = $this->sessionStorage->getPlugin()->getValue('mop');
         $nnPaymentData['payment_method'] = strtolower($this->paymentHelper->getPaymentKeyByMop($nnPaymentData['mop']));
         
-        $this->executePayment($nnPaymentData);
+	if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS']) {
+	   $this->paymentHelper->createPlentyPayment($nnPaymentData);
+	}
+        //$this->executePayment($nnPaymentData);
         
         $additionalInfo = $this->additionalInfo($nnPaymentData);
 	
@@ -175,17 +178,17 @@ class PaymentService
 	
 
         $transactionData = [
-            'amount'           => $nnPaymentData['amount'] * 100,
-            'callback_amount'  => $nnPaymentData['amount'] * 100,
-            'tid'              => $nnPaymentData['tid'],
-            'ref_tid'          => $nnPaymentData['tid'],
+            'amount'           => $nnPaymentData['transaction']['amount'] * 100,
+            'callback_amount'  => $nnPaymentData['transaction']['amount'] * 100,
+            'tid'              => $nnPaymentData['transaction']['tid'],
+            'ref_tid'          => $nnPaymentData['transaction']['tid'],
             'payment_name'     => $nnPaymentData['payment_method'],
-            'order_no'         => $nnPaymentData['order_no'],
+            'order_no'         => $nnPaymentData['transaction']['order_no'],
             'additional_info'  => !empty($additionalInfo) ? json_encode($additionalInfo) : 0,
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
-        if($nnPaymentData['payment_id'] == 27 || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD'])))
+        if(nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD'])))
             $transactionData['callback_amount'] = 0;    
 
         $this->transactionLogData->saveTransaction($transactionData);
@@ -203,7 +206,7 @@ class PaymentService
     public function executePayment($requestData, $callbackfailure = false)
     {
         try {
-            if(!$callbackfailure &&  in_array($requestData['status'], [100, 90])) {
+            if(!$callbackfailure &&  in_array($requestData['result']['status'], [100, 90])) {
 				if($requestData['tid_status'] == 90) {
                     $requestData['order_status'] = trim($this->config->get('Novalnet.'. $requestData['payment_method'] .'_payment_pending_status'));
                     $requestData['paid_amount'] = 0;
@@ -783,12 +786,9 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
 		$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 		$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
-        $this->getLogger(__METHOD__)->error('response formation', $response);
-		$responseData = $this->paymentHelper->convertStringToArray($response['response'], '&');
-		$notificationMessage = $this->paymentHelper->getNovalnetStatusText($responseData);
-		$responseData['payment_id'] = (!empty($responseData['payment_id'])) ? $responseData['payment_id'] : $responseData['key'];
-		$isPaymentSuccess = isset($responseData['status']) && $responseData['status'] == 100;
-		$this->getLogger(__METHOD__)->error('response', $responseData);
+        	$this->getLogger(__METHOD__)->error('response formation', $response);
+		$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
+		$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 100;
 		if($isPaymentSuccess)
 		{           
 			if(isset($serverRequestData['data']['pan_hash']))
@@ -796,12 +796,12 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				unset($serverRequestData['data']['pan_hash']);
 			}
 			
-			$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $responseData));
+			$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $response));
 			$this->pushNotification($notificationMessage, 'success', 100);
 			
 		} else {
 			$orderStatus = trim($this->config->get('Novalnet.novalnet_order_cancel_status'));
-			$this->paymentHelper->updateOrderStatus((int)$responseData['order_no'], $orderStatus);
+			$this->paymentHelper->updateOrderStatus((int)$response['transaction']['order_no'], $orderStatus);
 			$this->pushNotification($notificationMessage, 'error', 100);
 		}
 		  
@@ -815,20 +815,19 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
      * @return array
      */
 	public function additionalInfo ($nnPaymentData) {
-	 $lang = strtolower((string)$nnPaymentData['lang']);
+	 $lang = strtolower((string)$nnPaymentData['custom']['lang']);
 	 $additional_info = [
-		'currency' => $nnPaymentData['currency'],
-		'product_id' => !empty($nnPaymentData['product_id']) ? $nnPaymentData['product_id'] : $nnPaymentData['product'] ,
-		'payment_id' => $nnPaymentData['payment_id'],
-		'plugin_version' => $nnPaymentData['system_version'],
-		'test_mode' => !empty($nnPaymentData['test_mode']) ? $this->paymentHelper->getTranslatedText('test_order',$lang) : 0,
-		'invoice_bankname'  => !empty($nnPaymentData['invoice_bankname']) ? $nnPaymentData['invoice_bankname'] : 0,
-		'invoice_bankplace' => !empty($nnPaymentData['invoice_bankplace']) ? utf8_encode($nnPaymentData['invoice_bankplace']) : 0,
-		'invoice_iban'      => !empty($nnPaymentData['invoice_iban']) ? $nnPaymentData['invoice_iban'] : 0,
-		'invoice_bic'       => !empty($nnPaymentData['invoice_bic']) ? $nnPaymentData['invoice_bic'] : 0,
-		'due_date'          => !empty($nnPaymentData['due_date']) ? $nnPaymentData['due_date'] : 0,
-		'invoice_type'      => !empty($nnPaymentData['invoice_type']) ? $nnPaymentData['invoice_type'] : 0 ,
-		'invoice_account_holder' => !empty($nnPaymentData['invoice_account_holder']) ? $nnPaymentData['invoice_account_holder'] : 0 
+		'currency' => $nnPaymentData['transaction']['currency'],
+		'plugin_version' => NovalnetConstants::PLUGIN_VERSION,
+		'test_mode' => !empty($nnPaymentData['transaction']['test_mode']) ? $this->paymentHelper->getTranslatedText('test_order',$lang) : 0,
+		'invoice_bankname'  => !empty($nnPaymentData['transaction']['bank_details']['invoice_bankname']) ? $nnPaymentData['transaction']['bank_details']['invoice_bankname'] : 0,
+		'invoice_bankplace' => !empty($nnPaymentData['transaction']['bank_details']['invoice_bankplace']) ? utf8_encode($nnPaymentData['transaction']['bank_details']['invoice_bankplace']) : 0,
+		'invoice_iban'      => !empty($nnPaymentData['transaction']['bank_details']['invoice_iban']) ? $nnPaymentData['transaction']['bank_details']['invoice_iban'] : 0,
+		'invoice_bic'       => !empty($nnPaymentData['transaction']['bank_details']['invoice_bic']) ? $nnPaymentData['transaction']['bank_details']['invoice_bic'] : 0,
+		'due_date'          => !empty($nnPaymentData['transaction']['bank_details']['due_date']) ? $nnPaymentData['transaction']['bank_details']['due_date'] : 0,
+		'invoice_type'      => !empty($nnPaymentData['transaction']['payment_type']) ? $nnPaymentData['transaction']['payment_type'] : 0 ,
+		 'invoice_ref'      => !empty($nnPaymentData['transaction']['invoice_ref']) ? $nnPaymentData['transaction']['invoice_ref'] : 0 ,
+		'invoice_account_holder' => !empty($nnPaymentData['transaction']['bank_details']['invoice_account_holder']) ? $nnPaymentData['transaction']['bank_details']['invoice_account_holder'] : 0 
 		];
 	 return $additional_info;
 	 
