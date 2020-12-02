@@ -21,7 +21,7 @@ use Novalnet\Helper\PaymentHelper;
  * Class UpgradePaymentMethods
  * @package Novalnet\Migrations
  */
-class UpgradePaymentMethods
+class CreateAndUpdatePaymentMethods
 {
     /**
      * @var PaymentMethodRepositoryContract
@@ -53,8 +53,8 @@ class UpgradePaymentMethods
      */
     public function run()
     {
-        $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_CC', 'Novalnet Credit Card');
-        $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_SEPA', 'Novalnet SEPA direct debit');
+        $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_CC', 'Novalnet Credit/Debit Cards');
+        $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_SEPA', 'Novalnet Direct Debit SEPA');
         $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_INVOICE', 'Novalnet Invoice');
         $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_PAYPAL', 'Novalnet PayPal');
         $this->createNovalnetPaymentMethodByPaymentKey('NOVALNET_INSTALMENT_INVOICE', 'Novalnet Instalment by Invoice');
@@ -76,7 +76,7 @@ class UpgradePaymentMethods
                                 'paymentName' => $paymentName
                                ];
             $this->paymentMethodRepository->createPaymentMethod($paymentMethodData);
-        } elseif ($payment_data[1] == $paymentKey && !in_array ($payment_data[2], ['Novalnet Credit Card', 'Novalnet SEPA direct debit', 'Novalnet Invoice', 'Novalnet PayPal']) ) {
+        } elseif ($payment_data[1] == $paymentKey && !in_array ($payment_data[2], ['Novalnet Credit/Debit Cards', 'Novalnet Direct Debit SEPA', 'Novalnet Invoice', 'Novalnet PayPal']) ) {
             $paymentMethodData = ['pluginKey'  => 'Novalnet',
                                 'paymentKey' => $paymentKey,
                                 'paymentName' => $paymentName,
