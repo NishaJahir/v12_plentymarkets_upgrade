@@ -13,21 +13,30 @@
                   "defaultValue":""
                }
             },
-            "novalnet_tariff_id":{
-               "type":"inputText",
-               "required":false,
-               "label":"Config.tariffIdLabel",
-               "options":{
-                  "tooltip":"Config.tariffIdTooltip",
-                  "defaultValue":""
-               }
-            },
             "novalnet_access_key":{
                "type":"inputText",
                "required":false,
                "label":"Config.accessKeyLabel",
                "options":{
                   "tooltip":"Config.accessKeyTooltip",
+                  "defaultValue":""
+               }
+            },
+            "novalnet_client_key":{
+               "type":"inputText",
+               "required":false,
+               "label":"Config.clientKeyLabel",
+               "options":{
+                  "tooltip":"Config.clientKeyTooltip",
+                  "defaultValue":""
+               }
+            },
+            "novalnet_tariff_id":{
+               "type":"inputText",
+               "required":false,
+               "label":"Config.tariffIdLabel",
+               "options":{
+                  "tooltip":"Config.tariffIdTooltip",
                   "defaultValue":""
                }
             }
