@@ -190,7 +190,7 @@ class PaymentService
        
         if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD']))) {
             $transactionData['callback_amount'] = 0;    
-
+	}
         $this->transactionLogData->saveTransaction($transactionData);
 
      }
