@@ -783,12 +783,15 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 	public function performServerCall() {
 		try {
 			$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
-			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
+			$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
+			$serverRequestData['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
 			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
-			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
-				$this->getLogger(__METHOD__)->error('response formation', $response);
+			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData), $paymentRequestUrl);
+		        $responseData = json_decode($response, true);
+			
+				$this->getLogger(__METHOD__)->error('response formation', $responseData);
 			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
-			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
+			$isPaymentSuccess = isset($responseData['result']['status']) && $responseData['result']['status'] == 'SUCCESS';
 			if($isPaymentSuccess)
 			{           
 				if(isset($serverRequestData['data']['pan_hash']))
@@ -796,7 +799,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 					unset($serverRequestData['data']['pan_hash']);
 				}
 				
-				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $response));
+				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $responseData));
 				$this->pushNotification($notificationMessage, 'success', 100);
 				
 			} else {
