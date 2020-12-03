@@ -139,7 +139,7 @@ class NovalnetServiceProvider extends ServiceProvider
                         $basket = $basketRepository->load();
                         // Get the payment request data
                         $serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);			
-						if (empty($serverRequestData['data']['first_name']) && empty($serverRequestData['data']['last_name'])) {
+						if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
                             $content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
                             $contentType = 'errorCode';   
                         } else {
