@@ -159,9 +159,9 @@ class PaymentService
         $nnPaymentData['mop']            = $this->sessionStorage->getPlugin()->getValue('mop');
         $nnPaymentData['payment_method'] = strtolower($this->paymentHelper->getPaymentKeyByMop($nnPaymentData['mop']));
         
-	if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
-	   $this->paymentHelper->createPlentyPayment($nnPaymentData);
-	}
+		if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
+		   $this->paymentHelper->createPlentyPayment($nnPaymentData);
+		}
         //$this->executePayment($nnPaymentData);
         
         $additionalInfo = $this->additionalInfo($nnPaymentData);
@@ -188,7 +188,7 @@ class PaymentService
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
-        if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD'])))
+        if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD']))) {
             $transactionData['callback_amount'] = 0;    
 
         $this->transactionLogData->saveTransaction($transactionData);
@@ -407,7 +407,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
      */
     public function getPaymentData($paymentKey, &$paymentRequestParameters )
     {
-        $url = $this->getpaymentUrl($paymentKey);
+        //$url = $this->getpaymentUrl($paymentKey);
         if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_PAYPAL', 'NOVALNET_INVOICE', 'NOVALNET_INSTALMENT_INVOICE'])) {
             $onHoldLimit = $this->paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_on_hold');
             $onHoldAuthorize = $this->paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_payment_action');
@@ -780,31 +780,35 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
      * Send the payment call to novalnet server
      *
      */
-	public function paymentCalltoNovalnetServer () {
-		  
-		$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
-		$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
-		$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
-		$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
-        	$this->getLogger(__METHOD__)->error('response formation', $response);
-		$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
-		$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 100;
-		if($isPaymentSuccess)
-		{           
-			if(isset($serverRequestData['data']['pan_hash']))
-			{
-				unset($serverRequestData['data']['pan_hash']);
+	public function performServerCall() {
+		try {
+			$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
+			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
+			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
+			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
+				$this->getLogger(__METHOD__)->error('response formation', $response);
+			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
+			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
+			if($isPaymentSuccess)
+			{           
+				if(isset($serverRequestData['data']['pan_hash']))
+				{
+					unset($serverRequestData['data']['pan_hash']);
+				}
+				
+				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $response));
+				$this->pushNotification($notificationMessage, 'success', 100);
+				
+			} else {
+				$this->pushNotification($notificationMessage, 'error', 100);
 			}
-			
-			$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $response));
-			$this->pushNotification($notificationMessage, 'success', 100);
-			
-		} else {
-			$orderStatus = trim($this->config->get('Novalnet.novalnet_order_cancel_status'));
-			$this->paymentHelper->updateOrderStatus((int)$response['transaction']['order_no'], $orderStatus);
-			$this->pushNotification($notificationMessage, 'error', 100);
-		}
-		  
+		} catch (\Exception $e) {
+            $this->getLogger(__METHOD__)->error('performServerCall failed.', $e);
+            return [
+                'type'  => 'error',
+                'value' => $e->getMessage()
+            ];
+        }
 	}
 
     /**
