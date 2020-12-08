@@ -84,6 +84,15 @@
                   "defaultValue":false
                }
             },
+            "novalnet_cc_display_inline_form":{
+               "type":"checkBox",
+               "required":false,
+               "label":"Config.inlineFormLabel",
+               "options":{
+                  "tooltip":"Config.inlineFormTooltip",
+                  "defaultValue":false
+               }
+            },
             "novalnet_cc_payment_name":{
                "type":"inputText",
                "required":false,
