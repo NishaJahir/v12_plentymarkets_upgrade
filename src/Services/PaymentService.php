@@ -784,10 +784,10 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 	public function performServerCall() {
 		try {
 			$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
-			$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
-			$serverRequestData['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
+			//$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
+			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
 			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
-			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData), $paymentRequestUrl);
+			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
 		       
 			
 				$this->getLogger(__METHOD__)->error('response formation', $response);
