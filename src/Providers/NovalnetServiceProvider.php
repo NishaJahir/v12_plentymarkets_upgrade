@@ -143,7 +143,7 @@ class NovalnetServiceProvider extends ServiceProvider
                             $content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
                             $contentType = 'errorCode';   
                         } else {
-				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE']) {
+				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
 				   $content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
 					   			'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
 								'paymentMopKey'       =>  $paymentKey,
