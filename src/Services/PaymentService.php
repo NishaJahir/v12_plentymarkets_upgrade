@@ -836,7 +836,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		$additionalInfo['invoice_bankplace'] = utf8_encode($nnPaymentData['transaction']['bank_details']['bank_place']);
 		$additionalInfo['invoice_iban']     = $nnPaymentData['transaction']['bank_details']['iban'];
 		$additionalInfo['invoice_bic']     = $nnPaymentData['transaction']['bank_details']['bic'];
-		$additionalInfo['invoice_account_holder'] => $nnPaymentData['transaction']['bank_details']['account_holder'];
+		$additionalInfo['invoice_account_holder'] = $nnPaymentData['transaction']['bank_details']['account_holder'];
 		}
 		$additionalInfo['due_date']     = !empty($nnPaymentData['transaction']['due_date']) ? $nnPaymentData['transaction']['due_date'] : 0;
 		$additionalInfo['invoice_type'] = !empty($nnPaymentData['transaction']['payment_type']) ? $nnPaymentData['transaction']['payment_type'] : 0;
