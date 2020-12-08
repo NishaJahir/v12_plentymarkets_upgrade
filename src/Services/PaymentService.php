@@ -824,20 +824,26 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
      */
 	public function additionalInfo ($nnPaymentData) {
 	 $lang = strtolower((string)$nnPaymentData['custom']['lang']);
-	 $additional_info = [
+	 $additionalInfo = [
 		'currency' => $nnPaymentData['transaction']['currency'],
 		'plugin_version' => NovalnetConstants::PLUGIN_VERSION,
 		'test_mode' => !empty($nnPaymentData['transaction']['test_mode']) ? $this->paymentHelper->getTranslatedText('test_order',$lang) : 0,
-		'invoice_bankname'  => !empty($nnPaymentData['transaction']['bank_details']['invoice_bankname']) ? $nnPaymentData['transaction']['bank_details']['invoice_bankname'] : 0,
-		'invoice_bankplace' => !empty($nnPaymentData['transaction']['bank_details']['invoice_bankplace']) ? utf8_encode($nnPaymentData['transaction']['bank_details']['invoice_bankplace']) : 0,
-		'invoice_iban'      => !empty($nnPaymentData['transaction']['bank_details']['invoice_iban']) ? $nnPaymentData['transaction']['bank_details']['invoice_iban'] : 0,
-		'invoice_bic'       => !empty($nnPaymentData['transaction']['bank_details']['invoice_bic']) ? $nnPaymentData['transaction']['bank_details']['invoice_bic'] : 0,
-		'due_date'          => !empty($nnPaymentData['transaction']['bank_details']['due_date']) ? $nnPaymentData['transaction']['bank_details']['due_date'] : 0,
-		'invoice_type'      => !empty($nnPaymentData['transaction']['payment_type']) ? $nnPaymentData['transaction']['payment_type'] : 0 ,
-		 'invoice_ref'      => !empty($nnPaymentData['transaction']['invoice_ref']) ? $nnPaymentData['transaction']['invoice_ref'] : 0 ,
-		'invoice_account_holder' => !empty($nnPaymentData['transaction']['bank_details']['invoice_account_holder']) ? $nnPaymentData['transaction']['bank_details']['invoice_account_holder'] : 0 
-		];
-	 return $additional_info;
+	 ];
+	
+	if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE') {
+		if(!empty($nnPaymentData['transaction']['bank_details']) ) {
+	   	$additionalInfo['invoice_bankname']  = $nnPaymentData['transaction']['bank_details']['bank_name'];
+		$additionalInfo['invoice_bankplace'] = utf8_encode($nnPaymentData['transaction']['bank_details']['bank_place']);
+		$additionalInfo['invoice_iban']     = $nnPaymentData['transaction']['bank_details']['iban'];
+		$additionalInfo['invoice_bic']     = $nnPaymentData['transaction']['bank_details']['bic'];
+		$additionalInfo['invoice_account_holder'] => $nnPaymentData['transaction']['bank_details']['account_holder'];
+		}
+		$additionalInfo['due_date']     = !empty($nnPaymentData['transaction']['due_date']) ? $nnPaymentData['transaction']['due_date'] : 0;
+		$additionalInfo['invoice_type'] = !empty($nnPaymentData['transaction']['payment_type']) ? $nnPaymentData['transaction']['payment_type'] : 0;
+		$additionalInfo['invoice_ref']  = !empty($nnPaymentData['transaction']['invoice_ref']) ? $nnPaymentData['transaction']['invoice_ref'] : 0;
+		
+	}
+	 return $additionalInfo;
 	 
     }
 	
