@@ -15,7 +15,7 @@
                 <div>{{trans("Novalnet::PaymentMethod.bank")}} {{bankDetails.invoice_bankname}} {{bankDetails.invoice_bankname}}</div>
                 <div>{{trans("Novalnet::PaymentMethod.amount")}} {{bankDetails.amount}} {{bankDetails.currency}}</div>
                 <br><div>{{trans("Novalnet::PaymentMethod.any_one_reference_text")}}</div>
-                <div>{{trans("Novalnet::PaymentMethod.payment_reference1")}}  BNR-{{bankDetails.product_id}}-{{bankDetails.order_no}}</div>
+                <div>{{trans("Novalnet::PaymentMethod.payment_reference1")}}  {{paymentDetails.invoice_ref}}</div>
                 <div>{{trans("Novalnet::PaymentMethod.payment_reference2")}} TID {{bankDetails.tid}}</div>
                 {% endif %}
         </span>
