@@ -79,9 +79,10 @@ class NovalnetOrderConfirmationDataProvider
                        $totalCallbackAmount += $transactionDetail->callbackAmount;
                     }
                     
-                    if(in_array($tidStatus, ['PENDING', 'ON_HOLD', 'SUCCESS']) && ($paymentDetails['payment_type'] == 'INVOICE' && ($transactionDetail->amount > $totalCallbackAmount) || $paymentDetails['payment_id'] == 96) ) {
+                    if(in_array($tidStatus, ['PENDING', 'ON_HOLD', 'SUCCESS']) && ($paymentDetails['invoice_type'] == 'INVOICE' && ($transactionDetail->amount > $totalCallbackAmount) || $paymentDetails['payment_id'] == 96) ) {
                         //$bankDetails .= PHP_EOL . $paymentService->getInvoicePrepaymentComments($db_details);
-                        $bankDetails = $paymentDetails;
+                        $paymentHelper->logger('invoice comments called', $transactionDetail);
+			    $bankDetails = $paymentDetails;
                     }
                 }
             }
