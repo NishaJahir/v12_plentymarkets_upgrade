@@ -615,12 +615,35 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     */
     public function getCcDesignConfig()
     {
+	    
         return [
             'standardStyleLabel' => $this->paymentHelper->getNovalnetConfig('novalnet_cc_standard_style_label'),
             'standardStyleInput' => $this->paymentHelper->getNovalnetConfig('novalnet_cc_standard_style_field'),
             'standardStyleCss' => $this->paymentHelper->getNovalnetConfig('novalnet_cc_standard_style_css'),
         ];
     }
+	
+	public function getCcFormFields()
+    {
+        $ccformFields = [];
+
+        $styleConfiguration = array('novalnet_cc_standard_style_label', 'novalnet_cc_standard_style_field', 'novalnet_cc_standard_style_css');
+
+        foreach ($styleConfiguration as $value) {
+            $ccformFields[$value] = $this->paymentHelper->getNovalnetConfig($value);
+        }
+
+        $textFields = array( 'novalnetCcHolderLabel', 'novalnetCcHolderInput', 'novalnetCcNumberLabel', 'novalnetCcNumberLabelCssInput', 'novalnetCcExpiryDateLabel', 'novalnetCcExpiryDateInput', 'novalnetCcCvcLabel', 'novalnetCcCvcInput', 'novalnetCcError' );
+
+        foreach ($textFields as $value) {
+            $ccformFields[$value] = utf8_encode($this->paymentHelper->getNovalnetStatusText[$value]);
+        }
+        
+        $encodedFormFields = json_encode($ccformFields);
+
+        return ($encodedFormFields === null && json_last_error() !== JSON_ERROR_NONE) ? '' : $encodedFormFields;
+    }
+	
     
 	public function callCaptureVoid($order, $captureVoid=false) {
 		
