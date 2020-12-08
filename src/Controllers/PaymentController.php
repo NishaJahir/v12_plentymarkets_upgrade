@@ -140,7 +140,7 @@ class PaymentController extends Controller
         
         $serverRequestData = $this->paymentService->getRequestParameters($this->basketRepository->load(), $requestData['paymentKey']);
 	
-        if (empty($serverRequestData['data']['first_name']) && empty($serverRequestData['data']['last_name'])) {
+        if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
         $notificationMessage = $this->paymentHelper->getTranslatedText('nn_first_last_name_error');
                 $this->paymentService->pushNotification($notificationMessage, 'error', 100);
                 return $this->response->redirectTo('checkout');
