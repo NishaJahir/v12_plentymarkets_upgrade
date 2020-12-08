@@ -633,7 +633,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             $ccformFields[$value] = $this->paymentHelper->getNovalnetConfig($value);
         }
 
-        $textFields = array( 'novalnetCcHolderLabel', 'novalnetCcHolderInput', 'novalnetCcNumberLabel', 'novalnetCcNumberLabelCssInput', 'novalnetCcExpiryDateLabel', 'novalnetCcExpiryDateInput', 'novalnetCcCvcLabel', 'novalnetCcCvcInput', 'novalnetCcError' );
+        $textFields = array( 'novalnetCcHolderLabel', 'novalnetCcHolderInput', 'novalnetCcNumberLabel', 'novalnetCcNumberInput', 'novalnetCcExpiryDateLabel', 'novalnetCcExpiryDateInput', 'novalnetCcCvcLabel', 'novalnetCcCvcInput', 'novalnetCcError' );
 
         foreach ($textFields as $value) {
             $ccformFields[$value] = utf8_encode($this->paymentHelper->getNovalnetStatusText[$value]);
