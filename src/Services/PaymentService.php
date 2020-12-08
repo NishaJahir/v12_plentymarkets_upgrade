@@ -178,8 +178,8 @@ class PaymentService
 	
 
         $transactionData = [
-            'amount'           => $nnPaymentData['transaction']['amount'] * 100,
-            'callback_amount'  => $nnPaymentData['transaction']['amount'] * 100,
+            'amount'           => $nnPaymentData['transaction']['amount'],
+            'callback_amount'  => $nnPaymentData['transaction']['amount'],
             'tid'              => $nnPaymentData['transaction']['tid'],
             'ref_tid'          => $nnPaymentData['transaction']['tid'],
             'payment_name'     => $nnPaymentData['payment_method'],
