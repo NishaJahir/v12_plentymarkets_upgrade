@@ -151,8 +151,8 @@ class NovalnetServiceProvider extends ServiceProvider
 					   ]);	
 				   $contentType = 'htmlContent';     
 				} else {
-				$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData['data']);
-				$sessionStorage->getPlugin()->setValue('nnPaymentUrl', $serverRequestData['url']);
+				$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);
+				//$sessionStorage->getPlugin()->setValue('nnPaymentUrl', $serverRequestData['url']);
 				$content = '';
 				$contentType = 'continue';
 				}
