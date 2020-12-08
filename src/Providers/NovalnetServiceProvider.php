@@ -137,6 +137,8 @@ class NovalnetServiceProvider extends ServiceProvider
                     {   
                         $paymentKey = $paymentHelper->getPaymentKeyByMop($event->getMop());
                         $basket = $basketRepository->load();
+			$name = trim($config->get('Novalnet.' . strtolower($paymentKey) . '_payment_name'));
+                        $paymentName = ($name ? $name : $paymentHelper->getTranslatedText(strtolower($paymentKey)));
                         // Get the payment request data
                         $serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);			
 						if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
