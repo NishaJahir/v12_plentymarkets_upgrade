@@ -146,10 +146,18 @@ class NovalnetServiceProvider extends ServiceProvider
                             $contentType = 'errorCode';   
                         } else {
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
+					if($paymentKey == 'NOVALNET_CC') {
+								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
+						$ccCustomFields = $paymentService->getCcFormFields();
+							        }
 				   $content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
 					   			'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
 								'paymentMopKey'       =>  $paymentKey,
-								'paymentName' 		  => $paymentName
+								'paymentName' 		  => $paymentName,
+					                        'ccFormDetails'       => !empty($ccFormDetails)? $ccFormDetails : '',
+					   			'ccCustomFields'       => !empty($ccCustomFields)? $ccCustomFields : '',
+					   
+					   			
 					   ]);	
 				   $contentType = 'htmlContent';     
 				} else {
