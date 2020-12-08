@@ -799,7 +799,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 					unset($serverRequestData['data']['pan_hash']);
 				}
 				
-				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData['data'], $response));
+				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData, $response));
 				$this->pushNotification($notificationMessage, 'success', 100);
 				
 			} else {
