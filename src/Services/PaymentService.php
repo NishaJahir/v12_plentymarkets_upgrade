@@ -189,7 +189,7 @@ class PaymentService
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
-        if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD']))) {
+        if($nnPaymentData['payment_method'] == 'novalnet_invoice' || (in_array($nnPaymentData['transaction']['status'], ['PENIDNG', 'ON_HOLD']))) {
             $transactionData['callback_amount'] = 0;    
 	}
         $this->transactionLogData->saveTransaction($transactionData);
@@ -830,7 +830,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		'test_mode' => !empty($nnPaymentData['transaction']['test_mode']) ? $this->paymentHelper->getTranslatedText('test_order',$lang) : 0,
 	 ];
 	
-	if($nnPaymentData['payment_method'] == 'NOVALNET_INVOICE') {
+	if($nnPaymentData['payment_method'] == 'novalnet_invoice') {
 		if(!empty($nnPaymentData['transaction']['bank_details']) ) {
 	   	$additionalInfo['invoice_bankname']  = $nnPaymentData['transaction']['bank_details']['bank_name'];
 		$additionalInfo['invoice_bankplace'] = utf8_encode($nnPaymentData['transaction']['bank_details']['bank_place']);
