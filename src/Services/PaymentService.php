@@ -425,7 +425,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			} else if($paymentKey == 'NOVALNET_SEPA') {
 				$dueDate = $this->paymentHelper->getNovalnetConfig('novalnet_sepa_due_date');
 				if(is_numeric($dueDate) && $dueDate >= 2 && $dueDate <= 14) {
-					$paymentRequestParameters['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
+					$paymentRequestParameters['transaction']['sepa_due_date'] = $this->paymentHelper->dateFormatter($dueDate);
 				}
 			} else if($paymentKey == 'NOVALNET_INVOICE') {
 				$invoiceDueDate = $this->paymentHelper->getNovalnetConfig('novalnet_invoice_due_date');
