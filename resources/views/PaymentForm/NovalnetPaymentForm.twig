@@ -10,7 +10,8 @@
     <input type="hidden" id="paymentKey" name="paymentKey" value="{{paymentMopKey}}" />
     
     <div class="modal-header">
-		<h4 class="modal-title">{{paymentName}}</h4>
+		 <!-- <h4 class="modal-title">{{paymentName}}</h4> -->
+		 <img src="pic_trulli.jpg" alt="Italian Trulli">
         <button type="button" aria-label="Close" data-dismiss="modal" class="close" onClick="window.location.reload();">
             <span aria-hidden="true">x</span>
         </button> 
@@ -28,11 +29,7 @@
 				<div class="col-xs-12">
 					<div class="row">
 						<div class="col-xs-12 col-sm-12">
-							<div data-model="nn_invoice_birthday" class="input-unit">
-								<input type="text" name="nnSepaCardholder" value="{{endcustomername}}" id="nnSepaCardholder"> 
-								<label for="sepaHolder">{{trans("Novalnet::PaymentMethod.sepa_account_holder_label")}}*</label>
-							</div>
-							<div data-model="nn_sepa_birthday" class="input-unit">
+							<div data-model="nn_sepa_iban" class="input-unit">
 								<input type="text" name="nnSepaIban" autocomplete="off" id="nnSepaIban">
 								<label for="sepaIban">{{trans("Novalnet::PaymentMethod.sepa_iban_label")}}*</label>
 							</div>
