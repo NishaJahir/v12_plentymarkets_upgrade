@@ -84,9 +84,11 @@
 		 {% elseif paymentMopKey == "NOVALNET_CC" %}
 			<input type="hidden" id="nnPanHash" name="nnPanHash" />
 			<input type="hidden" id="nnUniqueId" name="nnUniqueId" />
+			<input type="hidden" id="nnCc3dRedirect" name="nnCc3dRedirect" />
+			<script type="text/javascript" src="https://cdn.novalnet.de/js/v2/NovalnetUtility.js"></script>
 			<div class="modal-body form-horizontal">
 				<div class="row">
-					<iframe id="nnIframe" src="{{nnCcFormUrl}}" frameborder="0" onload="initIframe()" scrolling="no" width="100%"></iframe>
+					<iframe id="nnIframe" frameborder="0" scrolling="no" width="100%"></iframe>
 				</div> 
 			</div>
 		 {% endif %}
