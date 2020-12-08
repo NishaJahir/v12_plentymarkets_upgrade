@@ -82,9 +82,11 @@
 				</div>
 				
 		 {% elseif paymentMopKey == "NOVALNET_CC" %}
-			<input type="hidden" id="nnPanHash" name="nnPanHash" />
-			<input type="hidden" id="nnUniqueId" name="nnUniqueId" />
+			<input type="hidden" id="nnCcPanHash" name="nnCcPanHash" />
+			<input type="hidden" id="nnCcUniqueId" name="nnCcUniqueId" />
 			<input type="hidden" id="nnCc3dRedirect" name="nnCc3dRedirect" />
+			<input type="hidden" id="nnCcFormFields" name="nnCcFormFields" value="{$ccCustomFields|escape}" />
+            		<input type="hidden" id="nnCcFormDetails" name="nnCcFormDetails" value="{$ccFormDetails|escape}" />
 			<script type="text/javascript" src="https://cdn.novalnet.de/js/v2/NovalnetUtility.js"></script>
 			<div class="modal-body form-horizontal">
 				<div class="row">
