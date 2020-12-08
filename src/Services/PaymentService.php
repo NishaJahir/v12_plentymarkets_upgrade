@@ -302,7 +302,7 @@ class PaymentService
         $account = pluginApp(AccountService::class);
         $customerId = $account->getAccountContactId();
         $paymentKeyLower = strtolower((string) $paymentKey);
-        $testModeKey = 'Novalnet.' . $paymentKeyLower . '_test_mode';
+        $testModeKey = 'Novalnet.' . $paymentKeyLower . '_test_mode'; 
 
         $paymentRequestParameters = [];
         // Build Merchant Data
@@ -319,22 +319,14 @@ class PaymentService
             'gender'     => 'u',
             'customer_no'  => ($customerId) ? $customerId : 'guest',
             'customer_ip'  => $this->paymentHelper->getRemoteAddress(),
-
-            'billing'     => [
-                'street'       => $billingAddress->street,
-                'house_no'     => $billingAddress->houseNumber,
-                'city'         => $billingAddress->town,
-                'zip'          => $billingAddress->postalCode,
-                'country_code' => $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
-            ],
-            'shipping'     => [
-                'street'   => !empty($shippingAddress->street) ? $shippingAddress->street : $billingAddress->street,
-                'house_no'     => !empty($shippingAddress->houseNumber) ? $shippingAddress->street : $billingAddress->houseNumber,
-                'city'     => !empty($shippingAddress->town) ? $shippingAddress->street : $billingAddress->town,
-                'zip' => !empty($shippingAddress->postalCode) ? $shippingAddress->street : $billingAddress->postalCode,
-                'country_code' => !empty($shippingAddress->countryId) ? $this->countryRepository->findIsoCode($shippingAddress->countryId, 'iso_code_2') : $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
-            ],
         ];
+	    
+	  $billingShippingDetails = $this->getBillingShippingDetails();
+	    $paymentRequestParameters['customer'] = array_merge($paymentRequestParameters['customer'], $billingShippingDetails);
+	    
+	   if ($paymentRequestParameters['customer']['billing'] == $paymentRequestParameters['customer']['shipping']) {
+            $paymentRequestParameters['customer']['shipping']['same_as_billing'] = '1';
+            }
 
         // Build Transaction Data
         $paymentRequestParameters['transaction'] = [
@@ -344,14 +336,12 @@ class PaymentService
             'currency'         => $basket->currency,
             'hook_url'         => $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/payment/novalnet/callback/',
         ];
+	    
+	    
 
         $paymentRequestParameters['custom'] = [
             'lang' => strtoupper($this->sessionStorage->getLocaleSettings()->language),
         ];
-
-        if ($paymentRequestParameters['customer']['billing'] == $paymentRequestParameters['customer']['shipping']) {
-            $paymentRequestParameters['customer']['shipping']['same_as_billing'] = '1';
-        }
 
         if(!empty($billingAddress->companyName)) {
             $paymentRequestParameters['customer']['billing']['company'] = $billingAddress->companyName;
@@ -398,6 +388,66 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         $firstName = empty ($firstname) ? $lastname : $firstname;
         $lastName = empty ($lastname) ? $firstname : $lastname;
         return ['firstName' => $firstName, 'lastName' => $lastName];
+	}
+	
+	public function getBillingShippingDetails() {
+		
+		$billingShippingDetails = [];
+		$billingShippingDetails['billing']     = [
+                'street'       => $billingAddress->street,
+                'house_no'     => $billingAddress->houseNumber,
+                'city'         => $billingAddress->town,
+                'zip'          => $billingAddress->postalCode,
+                'country_code' => $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
+            ];
+         $billingShippingDetails['shipping']    = [
+                'street'   => !empty($shippingAddress->street) ? $shippingAddress->street : $billingAddress->street,
+                'house_no'     => !empty($shippingAddress->houseNumber) ? $shippingAddress->street : $billingAddress->houseNumber,
+                'city'     => !empty($shippingAddress->town) ? $shippingAddress->street : $billingAddress->town,
+                'zip' => !empty($shippingAddress->postalCode) ? $shippingAddress->street : $billingAddress->postalCode,
+		'country_code' => !empty($shippingAddress->countryId) ? $this->countryRepository->findIsoCode($shippingAddress->countryId, 'iso_code_2') : $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
+            ];
+		
+		return $billingShippingDetails;
+	}
+	
+    /**
+     * Get required data for credit card form load
+     *
+     * @param array $paymentRequestData
+     * @param string $paymentKey
+     */
+    public function getCcFormData(Basket $basket, $paymentKey)
+    {
+	     $billingAddressId = $basket->customerInvoiceAddressId;
+        $billingAddress = $this->addressRepository->findAddressById($billingAddressId);
+        if(!empty($basket->customerShippingAddressId)){
+            $shippingAddress = $this->addressRepository->findAddressById($basket->customerShippingAddressId);
+        }
+		$customerName = $this->getCustomerName($billingAddress);
+		$ccFormRequestParameters = [
+			'client_key'	=> $this->paymentHelper->getNovalnetConfig('novalnet_client_key');
+			'inline_form'   => $this->paymentHelper->getNovalnetConfig('novalnet_cc_display_inline_form');
+			'test_mode'        => (int)($this->config->get('Novalnet.' . strtolower((string) $paymentKey) . '_test_mode') == 'true'),
+			'first_name' => !empty($billingAddress->firstName) ? $billingAddress->firstName : $customerName['firstName'],
+            		'last_name'  => !empty($billingAddress->lastName) ? $billingAddress->lastName : $customerName['lastName'],
+            		'email'      => $billingAddress->email,
+			'street'       => $billingAddress->street,
+			'house_no'     => $billingAddress->houseNumber,
+			'city'         => $billingAddress->town,
+			'zip'          => $billingAddress->postalCode,
+			'country_code' => $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
+		   	'amount'       => $this->paymentHelper->ConvertAmountToSmallerUnit($basket->basketAmount),
+            		'currency'     => $basket->currency,
+		    	'lang' => strtoupper($this->sessionStorage->getLocaleSettings()->language)
+		];	
+        $billingShippingDetails = $this->getBillingShippingDetails();
+        if ($billingShippingDetails['billing'] == $billingShippingDetails['shipping']) {
+			$ccFormRequestParameters['same_as_billing'] = 1;
+		}
+		
+		return json_encode($ccFormRequestParameters);
+		
 	}
 
     /**
