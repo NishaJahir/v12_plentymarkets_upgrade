@@ -41,8 +41,6 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 use Novalnet\Models\TransactionLog;
 use Plenty\Modules\Document\Models\Document;
 use Novalnet\Constants\NovalnetConstants;
-use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
-use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 
 use Novalnet\Methods\NovalnetCcPaymentMethod;
 use Novalnet\Methods\NovalnetSepaPaymentMethod;
