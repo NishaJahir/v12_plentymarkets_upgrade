@@ -29,6 +29,7 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Model;
  * @property string  $paymentName
  * @property array   $additionalInfo
  * @property int     $saveOneTimeToken
+ * @property string  $maskingDetails
  * @property array   $instalmentInfo
  */
 class TransactionLog extends Model
