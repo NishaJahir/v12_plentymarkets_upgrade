@@ -321,7 +321,7 @@ class PaymentService
             'customer_ip'  => $this->paymentHelper->getRemoteAddress(),
         ];
 	    
-	  $billingShippingDetails = $this->getBillingShippingDetails();
+	  $billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
 	    $paymentRequestParameters['customer'] = array_merge($paymentRequestParameters['customer'], $billingShippingDetails);
 	    
 	   if ($paymentRequestParameters['customer']['billing'] == $paymentRequestParameters['customer']['shipping']) {
@@ -390,7 +390,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         return ['firstName' => $firstName, 'lastName' => $lastName];
 	}
 	
-	public function getBillingShippingDetails() {
+	public function getBillingShippingDetails($billingAddress, $shippingAddress) {
 		
 		$billingShippingDetails = [];
 		$billingShippingDetails['billing']     = [
@@ -636,12 +636,10 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         $textFields = array( 'novalnetCcHolderLabel', 'novalnetCcHolderInput', 'novalnetCcNumberLabel', 'novalnetCcNumberInput', 'novalnetCcExpiryDateLabel', 'novalnetCcExpiryDateInput', 'novalnetCcCvcLabel', 'novalnetCcCvcInput', 'novalnetCcError' );
 
         foreach ($textFields as $value) {
-            $ccformFields[$value] = utf8_encode($this->paymentHelper->getNovalnetStatusText[$value]);
+            $ccformFields[$value] = utf8_encode($this->paymentHelper->getTranslatedText($value));
         }
-        
-        $encodedFormFields = json_encode($ccformFields);
 
-        return ($encodedFormFields === null && json_last_error() !== JSON_ERROR_NONE) ? '' : $encodedFormFields;
+        return json_encode($ccformFields);
     }
 	
     
