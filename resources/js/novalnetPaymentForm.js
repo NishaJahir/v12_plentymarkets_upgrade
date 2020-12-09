@@ -34,6 +34,8 @@ function loadNovalnetCcIframe()
 {
      var ccCustomFields = $('#nnCcFormFields').val() != '' ? $.parseJSON($('#nnCcFormFields').val()) : null;
      var ccFormDetails= $('#nnCcFormDetails').val() != '' ? $.parseJSON($('#nnCcFormDetails').val()) : null;
+    console.log(ccCustomFields);
+    console.log(ccFormDetails);
     
     // Set your Client key
     NovalnetUtility.setClientKey((ccFormDetails.client_key !== undefined) ? ccFormDetails.client_key : '');
