@@ -7,7 +7,7 @@ $(document).ready( function () {
         if (paymentName == 'NOVALNET_CC') {
             loadNovalnetCcIframe();
             jQuery('#novalnetForm').submit( function (e) {
-                    if($('#nnPanHash').val().trim() == '') {
+                    if($('#nnCcPanHash').val().trim() == '') {
                         NovalnetUtility.getPanHash();
                         e.preventDefault();
                         e.stopImmediatePropagation();
