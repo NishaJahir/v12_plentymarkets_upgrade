@@ -903,7 +903,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		        $this->getLogger(__METHOD__)->error('checksum response', $response);
 			 if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
 				 if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
-            				header('Location: ' . $response['result']['redirect_url']);
+            				header('Location: ' . $response['result']['redirect_url'] . ' ');
         }
 			 } else {
 				$this->getLogger(__METHOD__)->error('response formation', $response);
