@@ -199,7 +199,7 @@ class PaymentService
      }
 	
 	public function saveAdditionalPaymentData($requestPaymentData) {
-		switch (strtolower($requestPaymentData['payment_method']) {
+		switch (strtolower($requestPaymentData['payment_method'])) {
                 
             case 'novalnet_cc':
                 //if ($this->helper->getConfigurationParams('cc3d_active_mode')) {
