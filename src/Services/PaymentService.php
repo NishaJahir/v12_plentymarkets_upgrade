@@ -919,7 +919,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			}
 				
 			}
-		}
+
 		} catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('performServerCall failed.', $e);
             return [
