@@ -32,8 +32,8 @@ $(document).ready( function () {
 
 function loadNovalnetCcIframe()
 {
-     var ccCustomFields = $('#nnCcFormFields').val() != '' ? $.parseJSON($('#nnCcFormFields').val()) : null;
-     var ccFormDetails= $('#nnCcFormDetails').val() != '' ? $.parseJSON($('#nnCcFormDetails').val()) : null;
+     var ccCustomFields = $('#nnCcFormFields').val() != '' ? JSON.parse($('#nnCcFormFields').val()) : null;
+     var ccFormDetails= $('#nnCcFormDetails').val() != '' ? JSON.parse($('#nnCcFormDetails').val()) : null;
     console.log(ccCustomFields);
     console.log(ccFormDetails);
     
