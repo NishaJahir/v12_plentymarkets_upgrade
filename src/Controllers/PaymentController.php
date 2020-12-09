@@ -113,8 +113,15 @@ class PaymentController extends Controller
      */
     public function paymentResponse() {
         $requestData = $this->request->all();
-	   $responseData = $this->paymentService->checksumForRedirects($requestData);
 	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
+	   // if (($requestData['result']['redirect_url']) && !empty($requestData['transaction']['txn_secret'])) {
+		//return $this->response->redirectTo('confirmation');
+           // }
+	  $responseData = $this->paymentService->checksumForRedirects($requestData);
+	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
+
+				
+	
         $isPaymentSuccess = isset($responseData['result']['status']) && in_array($responseData['status'], ['PENDING', 'SUCCESS']);
         $notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
         if ($isPaymentSuccess) {
