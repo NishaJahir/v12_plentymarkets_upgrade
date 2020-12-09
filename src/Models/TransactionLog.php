@@ -43,6 +43,7 @@ class TransactionLog extends Model
     public $paymentName;
     public $additionalInfo;
     public $saveOneTimeToken;
+    public $maskingDetails;
     public $instalmentInfo;
    
     /**
