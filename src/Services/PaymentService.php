@@ -904,7 +904,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
 				if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
 					header('Location: ' . $response['result']['redirect_url']);
-					$response = $this->ChecksumForRedirects($response));
+					$response = $this->ChecksumForRedirects($response);
 					$this->getLogger(__METHOD__)->error('response paypal', $response);
 				}
 			}
