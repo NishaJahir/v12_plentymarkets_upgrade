@@ -173,7 +173,6 @@ class PaymentController extends Controller
 		    
             } elseif ($requestData['paymentKey'] == 'NOVALNET_INSTALMENT_INVOICE' ) {
 		$serverRequestData['data']['payment_type'] = 'INSTALMENT_INVOICE';
-                    $serverRequestData['data']['key']          = '96';
 		 $serverRequestData['data']['instalment_cycles'] = $requestData['nnInstalmentCycle'];
 		 $serverRequestData['data']['instalment_period'] = trim($this->config->get('Novalnet.novalnet_instalment_invoice_recurring_period')).'m';
 		//$serverRequestData['data']['birth_date']   =  $birthday;
