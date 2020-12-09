@@ -426,8 +426,9 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         }
 		$customerName = $this->getCustomerName($billingAddress);
 		$ccFormRequestParameters = [
-			'client_key'	=> $this->paymentHelper->getNovalnetConfig('novalnet_client_key'),
-			'inline_form'   => $this->paymentHelper->getNovalnetConfig('novalnet_cc_display_inline_form'),
+			//'client_key'	=> $this->paymentHelper->getNovalnetConfig('novalnet_client_key'),
+			'client_key'	=> '0f84e6cf6fe1b93f1db8198aa2eae719',
+			'inline_form'   => (int) ($this->paymentHelper->getNovalnetConfig('novalnet_cc_display_inline_form') == 'true'),
 			'test_mode'        => (int)($this->config->get('Novalnet.' . strtolower((string) $paymentKey) . '_test_mode') == 'true'),
 			'first_name' => !empty($billingAddress->firstName) ? $billingAddress->firstName : $customerName['firstName'],
             		'last_name'  => !empty($billingAddress->lastName) ? $billingAddress->lastName : $customerName['lastName'],
