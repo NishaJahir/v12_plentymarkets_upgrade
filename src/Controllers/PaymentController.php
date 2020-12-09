@@ -148,8 +148,8 @@ class PaymentController extends Controller
         }
         
         if($requestData['paymentKey'] == 'NOVALNET_CC') {
-            $serverRequestData['data']['payment_data']['pan_hash'] = $requestData['nnCcPanHash'];
-            $serverRequestData['data']['payment_data']['unique_id'] = $requestData['nnCcUniqueId'];
+            $serverRequestData['data']['transaction']['payment_data']['pan_hash'] = $requestData['nnCcPanHash'];
+            $serverRequestData['data']['transaction']['payment_data']['unique_id'] = $requestData['nnCcUniqueId'];
             if($this->config->get('Novalnet.novalnet_cc_3d') == 'true' || $this->config->get('Novalnet.novalnet_cc_3d_fraudcheck') == 'true' )
             {
                 $this->sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData['data']);
