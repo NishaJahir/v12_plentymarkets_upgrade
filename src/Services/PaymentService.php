@@ -901,12 +901,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
 		        $this->getLogger(__METHOD__)->error('checksum response', $response);
-			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
-				if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
-					$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData, $response));
-					header('Location: ' . $response['result']['redirect_url']);
-				}
-			} else {
+			 if($serverRequestData['data']['transaction']['payment_type'] != 'PAYPAL') {
 				$this->getLogger(__METHOD__)->error('response formation', $response);
 			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
 			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
@@ -924,6 +919,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			}
 				
 			}
+		}
 		} catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('performServerCall failed.', $e);
             return [
