@@ -902,8 +902,10 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
 		        $this->getLogger(__METHOD__)->error('checksum response', $response);
 			 if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
-				 if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
-            				header('Location: ' . $response['result']['redirect_url'] . ' ');
+				 $this->getLogger(__METHOD__)->error('checksum URL', $response['result']['redirect_url']);
+				 if (!empty($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
+					 $this->getLogger(__METHOD__)->error('checksum URL called', $response['result']['redirect_url']);
+            				header('Location: ' . $response['result']['redirect_url']);
         }
 			 } else {
 				$this->getLogger(__METHOD__)->error('response formation', $response);
