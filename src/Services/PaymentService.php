@@ -523,17 +523,17 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			}
         }
 
-        if($this->isRedirectPayment($paymentKey))
-        {
-			$paymentRequestParameters['uniqid'] = $this->paymentHelper->getUniqueId();
-			$this->encodePaymentData($paymentRequestParameters);
-			$paymentRequestParameters['implementation'] = 'ENC';
-			$paymentRequestParameters['return_url'] = $paymentRequestParameters['error_return_url'] = $this->getReturnPageUrl();
-			$paymentRequestParameters['return_method'] = $paymentRequestParameters['error_return_method'] = 'POST';
-			if ($paymentKey != 'NOVALNET_CC') {
-				$paymentRequestParameters['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-			}
-         }
+        //if($this->isRedirectPayment($paymentKey))
+       // {
+			//$paymentRequestParameters['uniqid'] = $this->paymentHelper->getUniqueId();
+			//$this->encodePaymentData($paymentRequestParameters);
+			//$paymentRequestParameters['implementation'] = 'ENC';
+			//$paymentRequestParameters['return_url'] = $paymentRequestParameters['error_return_url'] = $this->getReturnPageUrl();
+			//$paymentRequestParameters['return_method'] = $paymentRequestParameters['error_return_method'] = 'POST';
+			//if ($paymentKey != 'NOVALNET_CC') {
+				//$paymentRequestParameters['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+			//}
+        // }
         
         //return $url;
     }
