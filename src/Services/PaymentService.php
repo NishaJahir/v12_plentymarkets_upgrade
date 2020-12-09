@@ -441,7 +441,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             		'currency'     => $basket->currency,
 		    	'lang' => strtoupper($this->sessionStorage->getLocaleSettings()->language)
 		];	
-        $billingShippingDetails = $this->getBillingShippingDetails();
+        $billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
         if ($billingShippingDetails['billing'] == $billingShippingDetails['shipping']) {
 			$ccFormRequestParameters['same_as_billing'] = 1;
 		}
