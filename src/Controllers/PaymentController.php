@@ -114,9 +114,7 @@ class PaymentController extends Controller
     public function paymentResponse() {
         $requestData = $this->request->all();
 	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
-	   // if (($requestData['result']['redirect_url']) && !empty($requestData['transaction']['txn_secret'])) {
-		//return $this->response->redirectTo('confirmation');
-           // }
+	   
 	  $responseData = $this->paymentService->checksumForRedirects($requestData);
 	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
 
