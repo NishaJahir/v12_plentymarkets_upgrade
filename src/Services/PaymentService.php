@@ -426,8 +426,8 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         }
 		$customerName = $this->getCustomerName($billingAddress);
 		$ccFormRequestParameters = [
-			'client_key'	=> $this->paymentHelper->getNovalnetConfig('novalnet_client_key');
-			'inline_form'   => $this->paymentHelper->getNovalnetConfig('novalnet_cc_display_inline_form');
+			'client_key'	=> $this->paymentHelper->getNovalnetConfig('novalnet_client_key'),
+			'inline_form'   => $this->paymentHelper->getNovalnetConfig('novalnet_cc_display_inline_form'),
 			'test_mode'        => (int)($this->config->get('Novalnet.' . strtolower((string) $paymentKey) . '_test_mode') == 'true'),
 			'first_name' => !empty($billingAddress->firstName) ? $billingAddress->firstName : $customerName['firstName'],
             		'last_name'  => !empty($billingAddress->lastName) ? $billingAddress->lastName : $customerName['lastName'],
@@ -436,7 +436,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			'house_no'     => $billingAddress->houseNumber,
 			'city'         => $billingAddress->town,
 			'zip'          => $billingAddress->postalCode,
-			'country_code' => $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2')
+			'country_code' => $this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2'),
 		   	'amount'       => $this->paymentHelper->ConvertAmountToSmallerUnit($basket->basketAmount),
             		'currency'     => $basket->currency,
 		    	'lang' => strtoupper($this->sessionStorage->getLocaleSettings()->language)
