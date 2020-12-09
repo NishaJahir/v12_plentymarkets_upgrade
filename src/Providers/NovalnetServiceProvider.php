@@ -41,7 +41,8 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 use Novalnet\Models\TransactionLog;
 use Plenty\Modules\Document\Models\Document;
 use Novalnet\Constants\NovalnetConstants;
-
+use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
+use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 
 use Novalnet\Methods\NovalnetCcPaymentMethod;
 use Novalnet\Methods\NovalnetSepaPaymentMethod;
@@ -146,6 +147,9 @@ class NovalnetServiceProvider extends ServiceProvider
                             $contentType = 'errorCode';   
                         } else {
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
+					
+					
+					$paymentData = 
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
@@ -156,7 +160,11 @@ class NovalnetServiceProvider extends ServiceProvider
 								'paymentName' 		  => $paymentName,
 					                        'ccFormDetails'       => !empty($ccFormDetails)? $ccFormDetails : '',
 					   			'ccCustomFields'       => !empty($ccCustomFields)? $ccCustomFields : '',
-					   			'one_click_shopping'   => $config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')
+					   			'oneClickShopping'   => trim($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')),
+					                        'instalmentNetAmount'  => $basket->basketAmount,
+								'orderCurrency' => $basket->currency,
+								'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
+								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
 					   			
 					   ]);	
 				   $contentType = 'htmlContent';     
