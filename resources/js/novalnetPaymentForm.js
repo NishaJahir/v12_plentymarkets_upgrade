@@ -74,7 +74,7 @@ function loadNovalnetCcIframe()
           id: "nnIframe",
 
           // Display the inline form if the values is set as 1
-          inline: (ccFormDetails.novalnet_cc_display_inline_form !== undefined) ? ccFormDetails.novalnet_cc_display_inline_form : '0',
+          inline: (ccFormDetails.inline_form !== undefined) ? ccFormDetails.inline_form : '0',
          
           // Adjust the creditcard style and text 
           style: {
