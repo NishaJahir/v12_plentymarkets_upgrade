@@ -904,7 +904,8 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
 				if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
 					header('Location: ' . $response['result']['redirect_url']);
-					$response = $this->ChecksumForRedirects(array_merge($response, $serverRequestData['data']));
+					$response = $this->ChecksumForRedirects($response));
+					$this->getLogger(__METHOD__)->error('response paypal', $response);
 				}
 			}
 				$this->getLogger(__METHOD__)->error('response formation', $response);
@@ -946,19 +947,10 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             $data['transaction']['tid'] = $response['tid'];
            
             $responseData = $this->paymentHelper->executeCurl(json_encode($data), 'https://payport.novalnet.de/v2/transaction/details');
-           $isPaymentSuccess = isset($responseData['result']['status']) && $responseData['result']['status'] == 'SUCCESS';
-		$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
-		if($isPaymentSuccess)
-			{           
-				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($responseData, $response));
-				$this->pushNotification($notificationMessage, 'success', 100);
-				
-			} else {
-				$this->pushNotification($notificationMessage, 'error', 100);
-			}
             if ($generated_checksum !== $response['checksum']) {
                 $this->pushNotification($notificationMessage, 'error', 100);
             }
+	    return $responseData;
         }
     }
 
