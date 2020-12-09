@@ -163,7 +163,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					   			'oneClickShopping'   => trim($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')),
 					                        'instalmentNetAmount'  => $basket->basketAmount,
 								'orderCurrency' => $basket->currency,
-								'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
+								//'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
 					   			
 					   ]);	
