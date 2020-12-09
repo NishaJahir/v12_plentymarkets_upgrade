@@ -935,9 +935,11 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 	public function ChecksumForRedirects($response)
     {
 		$this->getLogger(__METHOD__)->error('checksum', $response);
+		
+		$strRevKey = implode(array_reverse(str_split($this->paymentHelper->getNovalnetConfig('novalnet_access_key'))));
         // Condition to check whether the payment is redirect
         if (! empty($response['checksum']) && ! empty($response['tid']) && !empty($response['transaction']['txn_secret']) && !empty($response['status'])) {
-            $token_string = $response['tid'] . $response['transaction']['txn_secret'] . $response['status'] . strrev($this->paymentHelper->getNovalnetConfig('novalnet_access_key'));
+            $token_string = $response['tid'] . $response['transaction']['txn_secret'] . $response['status'] . $strRevKey;
             $generated_checksum = hash('sha256', $token_string);
             
             $data = [];
@@ -955,8 +957,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				$this->pushNotification($notificationMessage, 'error', 100);
 			}
             if ($generated_checksum !== $response['checksum']) {
-                $_SESSION['nn_error'] = html_entity_decode($this->helper->oPlugin->oPluginSprachvariableAssoc_arr['__NN_hash_error']);
-                $this->redirectOnError($order, $response, $paymentName); // Redirects to the error page
+                $this->pushNotification($notificationMessage, 'error', 100);
             }
         }
     }
