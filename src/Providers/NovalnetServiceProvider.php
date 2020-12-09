@@ -156,7 +156,7 @@ class NovalnetServiceProvider extends ServiceProvider
 								'paymentName' 		  => $paymentName,
 					                        'ccFormDetails'       => !empty($ccFormDetails)? $ccFormDetails : '',
 					   			'ccCustomFields'       => !empty($ccCustomFields)? $ccCustomFields : '',
-					   
+					   			'one_click_shopping'   => $config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')
 					   			
 					   ]);	
 				   $contentType = 'htmlContent';     
