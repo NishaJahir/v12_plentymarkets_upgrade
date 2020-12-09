@@ -162,6 +162,8 @@ class PaymentService
 		if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
 		   $this->paymentHelper->createPlentyPayment($nnPaymentData);
 		}
+	    
+	    
         //$this->executePayment($nnPaymentData);
         
         $additionalInfo = $this->additionalInfo($nnPaymentData);
@@ -175,7 +177,6 @@ class PaymentService
 			'next_instalment' => $nnPaymentData['next_instalment_date']
 		];
 	}
-	
 
         $transactionData = [
             'amount'           => $nnPaymentData['transaction']['amount'],
@@ -186,6 +187,7 @@ class PaymentService
             'order_no'         => $nnPaymentData['transaction']['order_no'],
             'additional_info'  => !empty($additionalInfo) ? json_encode($additionalInfo) : 0,
 	    'save_card_token'	=> !empty($nnPaymentData['transaction']['payment_data']['token']) ? $nnPaymentData['transaction']['payment_data']['token'] : 0,
+	    'masking_details'  => !empty($nnPaymentData['transaction']['payment_data']['token']) ? $this->saveAdditionalPaymentData ($nnPaymentData) : 0,
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
@@ -195,6 +197,42 @@ class PaymentService
         $this->transactionLogData->saveTransaction($transactionData);
 
      }
+	
+	public function saveAdditionalPaymentData($requestPaymentData) {
+		switch (strtolower($requestPaymentData['payment_method']) {
+                
+            case 'novalnet_cc':
+                //if ($this->helper->getConfigurationParams('cc3d_active_mode')) {
+                    //return '';
+                //}
+
+                return json_encode(
+                    array(
+                        'card_type' => $requestPaymentData['transaction']['payment_data']['card_brand'],
+                        'card_number' => $requestPaymentData['transaction']['payment_data']['card_number'],
+                        'card_validity' => $requestPaymentData['transaction']['payment_data']['card_expiry_month'] .'/'. $requestPaymentData['transaction']['payment_data']['card_expiry_year']
+                        )
+                );
+            case 'novalnet_sepa':
+
+                return json_encode(
+                    array(
+                        'iban' => $requestPaymentData['transaction']['payment_data']['iban']
+                    )
+                );
+            case 'novalnet_paypal':
+
+                return json_encode(
+                    array(
+                        'paypal_account' => utf8_decode($requestPaymentData['transaction']['payment_data']['paypal_account'])
+                        )
+                );
+            default:
+               
+                return '';
+            }
+		
+	}
      
     /**
      * Creates the payment for the order generated in plentymarkets.
