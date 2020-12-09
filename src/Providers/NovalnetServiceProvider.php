@@ -147,9 +147,6 @@ class NovalnetServiceProvider extends ServiceProvider
                             $contentType = 'errorCode';   
                         } else {
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
-					
-					
-					$paymentData = 
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
