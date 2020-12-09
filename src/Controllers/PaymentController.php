@@ -159,7 +159,7 @@ class PaymentController extends Controller
             }
         } elseif ( $requestData['paymentKey'] == 'NOVALNET_SEPA' ) {
 		    if($this->config->get('Novalnet.novalnet_sepa_shopping_type') == true) {
-			  $serverRequestData['transaction']['create_token'] = 1;  
+			  $serverRequestData['data']['transaction']['create_token'] = 1;  
 		     }
 			    $serverRequestData['data']['transaction']['payment_data']['bank_account_holder'] = $serverRequestData['data']['first_name'] . ' ' . $serverRequestData['data']['last_name'];
 			    $serverRequestData['data']['transaction']['payment_data']['iban'] = $requestData['nnSepaIban'];   
