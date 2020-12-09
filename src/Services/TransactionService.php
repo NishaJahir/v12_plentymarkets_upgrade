@@ -37,6 +37,7 @@ class TransactionService
      */
     public function saveTransaction($transactionData)
     {
+	    $this->getLogger(__METHOD__)->error('Callback table', $transactionData);
         try {
             $database = pluginApp(DataBase::class);
             $transaction = pluginApp(TransactionLog::class);
