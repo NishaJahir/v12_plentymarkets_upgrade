@@ -948,6 +948,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
            
             $responseData = $this->paymentHelper->executeCurl(json_encode($data), 'https://payport.novalnet.de/v2/transaction/details');
             if ($generated_checksum !== $response['checksum']) {
+		    $notificationMessage = 'Checksum is invalid';
                 $this->pushNotification($notificationMessage, 'error', 100);
             }
 	    return $responseData;
