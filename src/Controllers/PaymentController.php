@@ -112,17 +112,19 @@ class PaymentController extends Controller
      *
      */
     public function paymentResponse() {
-        $responseData = $this->request->all();
-        $isPaymentSuccess = isset($responseData['status']) && in_array($responseData['status'], [90, 100]);
-        $notificationMessage = $this->paymentHelper->getNovalnetStatusText($responseData);
+        $requestData = $this->request->all();
+	   $responseData = $this->paymentService->checksumForRedirects($requestData);
+	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
+        $isPaymentSuccess = isset($responseData['result']['status']) && in_array($responseData['status'], ['PENDING', 'SUCCESS']);
+        $notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
         if ($isPaymentSuccess) {
             $this->paymentService->pushNotification($notificationMessage, 'success', 100);
         } else {
             $this->paymentService->pushNotification($notificationMessage, 'error', 100);    
         }
         
-        $responseData['test_mode'] = $this->paymentHelper->decodeData($responseData['test_mode'], $responseData['uniqid']);
-        $responseData['amount']    = $this->paymentHelper->decodeData($responseData['amount'], $responseData['uniqid']) / 100;
+        //$responseData['test_mode'] = $this->paymentHelper->decodeData($responseData['test_mode'], $responseData['uniqid']);
+       // $responseData['amount']    = $this->paymentHelper->decodeData($responseData['amount'], $responseData['uniqid']) / 100;
         $paymentRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
         $this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($paymentRequestData, $responseData));
         $this->paymentService->validateResponse();
