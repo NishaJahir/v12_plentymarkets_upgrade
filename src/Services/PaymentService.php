@@ -896,9 +896,17 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			//$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
 			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
 			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
+			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
+			    $serverRequestData['data']['transaction']['return_url'] = $serverRequestData['data']['transaction']['error_return_url'] = $this->getReturnPageUrl();	
+			}
 			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
 		       
-			
+			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
+				if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
+					header('Location: ' . $response['result']['redirect_url']);
+					$response = $this->ChecksumForRedirects(array_merge($response, $serverRequestData['data']));
+				}
+			}
 				$this->getLogger(__METHOD__)->error('response formation', $response);
 			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
 			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
@@ -923,6 +931,35 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             ];
         }
 	}
+	
+	public function ChecksumForRedirects($response)
+    {
+		$this->getLogger(__METHOD__)->error('checksum', $response);
+        // Condition to check whether the payment is redirect
+        if (! empty($response['checksum']) && ! empty($response['tid']) && !empty($response['transaction']['txn_secret']) && !empty($response['status'])) {
+            $token_string = $response['tid'] . $response['transaction']['txn_secret'] . $response['status'] . strrev($this->paymentHelper->getNovalnetConfig('novalnet_access_key'));
+            $generated_checksum = hash('sha256', $token_string);
+            
+            $data = [];
+            $data['transaction']['tid'] = $response['tid'];
+           
+            $responseData = $this->paymentHelper->executeCurl(json_encode($data), 'https://payport.novalnet.de/v2/transaction/details');
+           $isPaymentSuccess = isset($responseData['result']['status']) && $responseData['result']['status'] == 'SUCCESS';
+		$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
+		if($isPaymentSuccess)
+			{           
+				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($responseData, $response));
+				$this->pushNotification($notificationMessage, 'success', 100);
+				
+			} else {
+				$this->pushNotification($notificationMessage, 'error', 100);
+			}
+            if ($generated_checksum !== $response['checksum']) {
+                $_SESSION['nn_error'] = html_entity_decode($this->helper->oPlugin->oPluginSprachvariableAssoc_arr['__NN_hash_error']);
+                $this->redirectOnError($order, $response, $paymentName); // Redirects to the error page
+            }
+        }
+    }
 
     /**
      * Build the additional params
