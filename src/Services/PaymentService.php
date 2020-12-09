@@ -895,19 +895,18 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
 			//$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
 			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
-			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
 			    $serverRequestData['data']['transaction']['return_url'] = $serverRequestData['data']['transaction']['error_return_url'] = $this->getReturnPageUrl();	
 			}
+			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
-		       
+		        $this->getLogger(__METHOD__)->error('checksum response', $response);
 			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
 				if (($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
+					$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData, $response));
 					header('Location: ' . $response['result']['redirect_url']);
-					$response = $this->ChecksumForRedirects($response);
-					$this->getLogger(__METHOD__)->error('response paypal', $response);
 				}
-			}
+			} else {
 				$this->getLogger(__METHOD__)->error('response formation', $response);
 			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
 			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
@@ -915,14 +914,15 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			{           
 				if(isset($serverRequestData['data']['pan_hash']))
 				{
-					unset($serverRequestData['data']['pan_hash']);
+				   unset($serverRequestData['data']['pan_hash']);
 				}
-				
 				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData, $response));
 				$this->pushNotification($notificationMessage, 'success', 100);
 				
 			} else {
 				$this->pushNotification($notificationMessage, 'error', 100);
+			}
+				
 			}
 		} catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('performServerCall failed.', $e);
@@ -933,7 +933,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         }
 	}
 	
-	public function ChecksumForRedirects($response)
+	public function checksumForRedirects($response)
     {
 		$this->getLogger(__METHOD__)->error('checksum', $response);
 		
