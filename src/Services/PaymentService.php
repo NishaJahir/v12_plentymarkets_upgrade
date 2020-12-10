@@ -185,6 +185,7 @@ class PaymentService
             'tid'              => $nnPaymentData['transaction']['tid'],
             'ref_tid'          => $nnPaymentData['transaction']['tid'],
             'payment_name'     => $nnPaymentData['payment_method'],
+	    'customer_email'  => $nnPaymentData['customer']['email'],
             'order_no'         => $nnPaymentData['transaction']['order_no'],
             'additional_info'  => !empty($additionalInfo) ? json_encode($additionalInfo) : 0,
 	    'save_card_token'	=> !empty($nnPaymentData['transaction']['payment_data']['token']) ? $nnPaymentData['transaction']['payment_data']['token'] : 0,
