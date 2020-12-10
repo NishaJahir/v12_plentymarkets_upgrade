@@ -27,6 +27,7 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Model;
  * @property string  $transactionDatetime
  * @property string  $tid
  * @property string  $paymentName
+ * @property string  $customerEmail
  * @property array   $additionalInfo
  * @property string  $saveOneTimeToken
  * @property array   $maskingDetails
@@ -42,6 +43,7 @@ class TransactionLog extends Model
     public $transactionDatetime;
     public $tid;
     public $paymentName;
+    public $customerEmail;
     public $additionalInfo;
     public $saveOneTimeToken;
     public $maskingDetails;
