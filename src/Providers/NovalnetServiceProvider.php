@@ -145,8 +145,10 @@ class NovalnetServiceProvider extends ServiceProvider
                             $contentType = 'errorCode';   
                         } else {
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
-					//$database->query(TransactionLog::class)->where(paymentName, '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', null)->where('maskingDetails', '!=', null)->get();
-					
+					 $billingAddressId = $basket->customerInvoiceAddressId;
+        $billingAddress = $this->addressRepository->findAddressById($billingAddressId);
+					$paymentData = $database->query(TransactionLog::class)->where(paymentName, '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->take(2)->get();
+					$this->getLogger(__METHOD__)->error('db get', $paymentData);
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
