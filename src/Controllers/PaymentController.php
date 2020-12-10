@@ -145,7 +145,7 @@ class PaymentController extends Controller
         $requestData = $this->request->all();
 	    $this->getLogger(__METHOD__)->error('request controller', $requestData);
         $notificationMessage = $this->paymentHelper->getNovalnetStatusText($requestData);
-        
+        $birthday = sprintf('%4d-%02d-%02d',$requestData['nn_guarantee_year'],$requestData['nn_guarantee_month'],$requestData['nn_guarantee_date']);
         $serverRequestData = $this->paymentService->getRequestParameters($this->basketRepository->load(), $requestData['paymentKey']);
 	
         if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
@@ -173,9 +173,9 @@ class PaymentController extends Controller
 		    
             } elseif ($requestData['paymentKey'] == 'NOVALNET_INSTALMENT_INVOICE' ) {
 		$serverRequestData['data']['payment_type'] = 'INSTALMENT_INVOICE';
-		 $serverRequestData['data']['instalment_cycles'] = $requestData['nnInstalmentCycle'];
-		 $serverRequestData['data']['instalment_period'] = trim($this->config->get('Novalnet.novalnet_instalment_invoice_recurring_period')).'m';
-		//$serverRequestData['data']['birth_date']   =  $birthday;
+		 $serverRequestData['data']['instalment']['interval'] = '1m';
+		 $serverRequestData['data']['instalment']['cycles'] = $requestData['nnInstalmentCycle'];
+		$serverRequestData['data']['customer']['birth_date']   =  $birthday;
 	}
 	    $this->getLogger(__METHOD__)->error('request controller', $serverRequestData);
         $this->sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);  
