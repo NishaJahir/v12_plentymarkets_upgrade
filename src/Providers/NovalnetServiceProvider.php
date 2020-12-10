@@ -130,7 +130,7 @@ class NovalnetServiceProvider extends ServiceProvider
         
         // Listen for the event that gets the payment method content
         $eventDispatcher->listen(GetPaymentMethodContent::class,
-                function(GetPaymentMethodContent $event) use($config, $paymentHelper, $addressRepository, $paymentService, $basketRepository, $sessionStorage, $twig)
+                function(GetPaymentMethodContent $event) use($config, $paymentHelper, $addressRepository, $paymentService, $basketRepository, $sessionStorage, $twig, $dataBase)
                 {
                     if($paymentHelper->getPaymentKeyByMop($event->getMop()))
                     {   
@@ -145,6 +145,8 @@ class NovalnetServiceProvider extends ServiceProvider
                             $contentType = 'errorCode';   
                         } else {
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
+					//$database->query(TransactionLog::class)->where(paymentName, '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', null)->where('maskingDetails', '!=', null)->get();
+					
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
