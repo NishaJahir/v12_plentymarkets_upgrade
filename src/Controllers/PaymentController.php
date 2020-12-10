@@ -120,7 +120,7 @@ class PaymentController extends Controller
 
 				
 	
-        $isPaymentSuccess = isset($responseData['result']['status']) && in_array($responseData['status'], ['PENDING', 'SUCCESS']);
+        $isPaymentSuccess = isset($responseData['result']['status']) && in_array($responseData['result']['status'], ['PENDING', 'SUCCESS']);
         $notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
         if ($isPaymentSuccess) {
             $this->paymentService->pushNotification($notificationMessage, 'success', 100);
