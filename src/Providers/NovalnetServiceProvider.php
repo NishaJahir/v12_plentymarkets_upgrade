@@ -151,13 +151,14 @@ class NovalnetServiceProvider extends ServiceProvider
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
 					$tmpPaymentDetails = [];
                                         foreach($paymentDetails as $key => $paymentDetail) {
-						$paymentDetail->iban = json_decode($paymentDetail->maskingDetails)->iban;
+						//$paymentDetail->iban = json_decode($paymentDetail->maskingDetails)->iban;
 						$tmpPaymentDetails[] = $paymentDetail;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$paymentDetails = (object) $tmpPaymentDetails;
+					//$paymentDetails = (object) $tmpPaymentDetails;
+					$paymentDetails =  $tmpPaymentDetails;
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
-					$this->getLogger(__METHOD__)->error('corrected', $paymentDetails);
+					$this->getLogger(__METHOD__)->error('corrected test', $paymentDetails);
 
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
