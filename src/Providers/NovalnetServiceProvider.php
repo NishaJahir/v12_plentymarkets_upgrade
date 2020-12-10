@@ -152,12 +152,12 @@ class NovalnetServiceProvider extends ServiceProvider
 					$paymentData = [];
                                         foreach($paymentDetails as $paymentDetail) {
 					 $paymentData[] = json_decode($paymentDetail->maskingDetails);
-						$new_test = array_merge($paymentDetails, $paymentData);
+						$new_test = array_merge($paymentDetail, $paymentData);
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$test = array_merge($paymentDetails, $paymentData);
-					$this->getLogger(__METHOD__)->error('JSON Details corrected', $test);
-					$this->getLogger(__METHOD__)->error('JSON Details new test', $new_test);
+					$test = array_merge($paymentDetail, $paymentData);
+					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
+					$this->getLogger(__METHOD__)->error('JSON Details new test 766', $new_test);
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
@@ -171,7 +171,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					   			'oneClickShopping'   => trim($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')),
 					                        'instalmentNetAmount'  => $basket->basketAmount,
 								'orderCurrency' => $basket->currency,
-					                         'paymentDetails' => array_merge($paymentDetails, $paymentData),
+					                         'paymentDetails' => array_merge($paymentDetail, $paymentData),
 								//'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
 					   			
