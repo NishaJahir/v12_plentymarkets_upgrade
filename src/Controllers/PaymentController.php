@@ -147,7 +147,7 @@ class PaymentController extends Controller
             $generated_checksum = hash('sha256', $token_string);
             if ($generated_checksum !== $response['checksum']) {
 		    $notificationMessage = 'Checksum is invalid';
-                $this->pushNotification($notificationMessage, 'error', 100);
+                $this->paymentService->pushNotification($notificationMessage, 'error', 100);
 		 return $this->response->redirectTo('checkout');
             } else {
             $data = [];
