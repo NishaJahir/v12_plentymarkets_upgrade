@@ -154,7 +154,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					  //$paymentDetails[$key]->iban = json_decode($paymentDetail->maskingDetails)->iban;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					
+					$paymentDetails = (object) $paymentDetails;
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
 					$this->getLogger(__METHOD__)->error('corrected', $paymentDetails);
 
