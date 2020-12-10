@@ -169,7 +169,7 @@ class PaymentController extends Controller
         $requestData = $this->request->all();
 	    $this->getLogger(__METHOD__)->error('request controller', $requestData);
         $notificationMessage = $this->paymentHelper->getNovalnetStatusText($requestData);
-        $birthday = sprintf('%4d-%02d-%02d',$requestData['nn_guarantee_year'],$requestData['nn_guarantee_month'],$requestData['nn_guarantee_date']);
+        $birthday = sprintf('%4d-%02d-%02d',$requestData['nnBirthdayYear'],$requestData['nnBirthdayMonth'],$requestData['nnBirthdayDate']);
         $serverRequestData = $this->paymentService->getRequestParameters($this->basketRepository->load(), $requestData['paymentKey']);
 	
         if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
