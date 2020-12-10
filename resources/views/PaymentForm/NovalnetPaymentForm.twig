@@ -76,8 +76,8 @@
 							 <option value="0">{{trans("Novalnet::PaymentMethod.instalment_plan_label")}}</option>
 							{% for instalmentCycle in instalmentCycles %}
 							{% set instalmentCycleAmount = ( instalmentNetAmount / instalmentCycle) | round(2, 'floor') %}
-							{% if instalmentCycleAmount > 9.99 %}
-					<option value="{{instalmentCycle}}">{{ trans("Novalnet::PaymentMethod.instalmentCycle#{instalmentCycle}") }} / {{instalmentCycleAmount}} {{orderCurrency}} {{ trans("Novalnet::PaymentMethod.recurringPeriodEveryMonths#{recurringPeriod}") }}</option>
+							{% if instalmentCycleAmount > 19.98 %}
+					<option value="{{instalmentCycle}}">{{ trans("Novalnet::PaymentMethod.instalmentCycle#{instalmentCycle}") }} / {{instalmentCycleAmount}} {{orderCurrency}} {{ trans("Novalnet::PaymentMethod.recurringPeriodEveryMonths") }}</option>
 							{% endif %}
 							{% endfor %}
 						</select>
