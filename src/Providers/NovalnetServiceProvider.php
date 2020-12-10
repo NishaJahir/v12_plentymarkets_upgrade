@@ -154,7 +154,8 @@ class NovalnetServiceProvider extends ServiceProvider
 					 $paymentData[] = json_decode($paymentDetail->maskingDetails);
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$this->getLogger(__METHOD__)->error('JSON Details', $paymentData);
+					$test = array_merge($paymentDetails, $paymentData)
+					$this->getLogger(__METHOD__)->error('JSON Details corrected', $test);
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
