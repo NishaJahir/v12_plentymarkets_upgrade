@@ -18,7 +18,7 @@ namespace Novalnet\Providers;
 use Plenty\Plugin\ServiceProvider;
 use Plenty\Plugin\Events\Dispatcher;
 use Plenty\Modules\Payment\Events\Checkout\ExecutePayment;
-use Plenty\Modules\Paymeini nannt\Events\Checkout\GetPaymentMethodContent;
+use Plenty\Modules\Payment\Events\Checkout\GetPaymentMethodContent;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketCreate;
 use Plenty\Modules\Basket\Events\Basket\AfterBasketChanged;
 use Plenty\Modules\Basket\Events\BasketItem\AfterBasketItemAdd;
