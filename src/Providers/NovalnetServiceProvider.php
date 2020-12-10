@@ -147,14 +147,15 @@ class NovalnetServiceProvider extends ServiceProvider
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
 					 $billingAddressId = $basket->customerInvoiceAddressId;
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
-					$paymentDetails = (array) $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
+					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
-				
+					$tmpPaymentDetails = [];
                                         foreach($paymentDetails as $key => $paymentDetail) {
-					  //$paymentDetails[$key]->iban = json_decode($paymentDetail->maskingDetails)->iban;
+						$paymentDetail = json_decode($paymentDetail->maskingDetails)->iban;
+						$tmpPaymentDetails[] = $paymentDetail;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$paymentDetails = (object) $paymentDetails;
+					$paymentDetails = (object) $tmpPaymentDetails;
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
 					$this->getLogger(__METHOD__)->error('corrected', $paymentDetails);
 
