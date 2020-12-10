@@ -147,10 +147,15 @@ class NovalnetServiceProvider extends ServiceProvider
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
 					 $billingAddressId = $basket->customerInvoiceAddressId;
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
-					$paymentData = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
+					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentData);
-                                        $jsonValue = json_decode($paymentData['maskingDetails'],true);
-					$this->getLogger(__METHOD__)->error('JSON', $jsonValue);
+					$paymentData = [];
+                                        foreach($paymentDetails as $paymentDetail) {
+					 $paymentData['maskingDetails'] = json_decode($paymentDetail->maskingDetails,true);
+					}
+					
+					//$jsonValue = ($paymentData['maskingDetails'],true);
+					$this->getLogger(__METHOD__)->error('JSON Details', $paymentData);
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
