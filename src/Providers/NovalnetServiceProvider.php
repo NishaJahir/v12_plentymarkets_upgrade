@@ -151,7 +151,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
 					$tmpPaymentDetails = [];
                                         foreach($paymentDetails as $key => $paymentDetail) {
-						$paymentDetail->maskingDetails = json_decode($paymentDetail->maskingDetails)->iban;
+						$paymentDetail = json_decode($paymentDetail->maskingDetails)->iban;
 						$tmpPaymentDetails[] = $paymentDetail;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
