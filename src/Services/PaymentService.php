@@ -170,11 +170,12 @@ class PaymentService
 	
 	if($nnPaymentData['payment_id'] == 96) {
 		$instalmentInfo = [
-			'total_paid_amount' => $nnPaymentData['instalment_cycle_amount'],
-			'instalment_cycle_amount' => $nnPaymentData['instalment_cycle_amount'],
-			'paid_instalment' => $nnPaymentData['instalment_cycles_executed'],
-			'due_instalment' => $nnPaymentData['due_instalment_cycles'],
-			'next_instalment' => $nnPaymentData['next_instalment_date']
+			'total_paid_amount' => $nnPaymentData['cycle_amount'],
+			'instalment_cycle_amount' => $nnPaymentData['cycle_amount'],
+			'paid_instalment' => $nnPaymentData['cycles_executed'],
+			'due_instalment_cycles' => $nnPaymentData['pending_cycles'],
+			'next_instalment_date' => $nnPaymentData['next_instalment_date'],
+			'future_instalment_date' => $nnPaymentData['cycle_dates']
 		];
 	}
 
