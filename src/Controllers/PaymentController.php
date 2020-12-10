@@ -115,7 +115,7 @@ class PaymentController extends Controller
         $requestData = $this->request->all();
 	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
 	   
-	  $responseData = $this->paymentService->checksumForRedirects($requestData);
+	  $responseData = $this->checksumForRedirects($requestData);
 	    $this->getLogger(__METHOD__)->error('payment response333', $responseData);
 
 				
@@ -135,6 +135,30 @@ class PaymentController extends Controller
         $this->paymentService->validateResponse();
         return $this->response->redirectTo('confirmation');
     }
+	
+	public function checksumForRedirects($response)
+    {
+		$this->getLogger(__METHOD__)->error('checksum', $response);
+		
+		$strRevKey = implode(array_reverse(str_split($this->paymentHelper->getNovalnetConfig('novalnet_access_key'))));
+        // Condition to check whether the payment is redirect
+        if (! empty($response['checksum']) && ! empty($response['tid']) && !empty($response['txn_secret']) && !empty($response['status'])) {
+            $token_string = $response['tid'] . $response['txn_secret'] . $response['status'] . $strRevKey;
+            $generated_checksum = hash('sha256', $token_string);
+            if ($generated_checksum !== $response['checksum']) {
+		    $notificationMessage = 'Checksum is invalid';
+                $this->pushNotification($notificationMessage, 'error', 100);
+		 return $this->response->redirectTo('checkout');
+            } else {
+            $data = [];
+            $data['transaction']['tid'] = $response['tid'];
+           
+            $responseData = $this->paymentHelper->executeCurl(json_encode($data), 'https://payport.novalnet.de/v2/transaction/details');
+            
+	    return $responseData;
+        }
+    }
+}
 
     /**
      * Process the Form payment
