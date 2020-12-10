@@ -152,8 +152,9 @@ class NovalnetServiceProvider extends ServiceProvider
 					$paymentData = [];
                                         foreach($paymentDetails as $paymentDetail) {
 					 $paymentData[] = json_decode($paymentDetail->maskingDetails);
-					 $paymentDetail->maskingDetails = $paymentData[];	
+					 	
 					}
+					$paymentDetails->maskingDetails = $paymentData[];
 					//$jsonValue = ($paymentData['maskingDetails'],true);
 					
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
