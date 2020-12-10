@@ -162,6 +162,7 @@ class NovalnetServiceProvider extends ServiceProvider
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
 					   			
 					   ]);	
+					$this->getLogger(__METHOD__)->error('instalment', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles');
 				   $contentType = 'htmlContent';     
 				} else {
 				$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);
