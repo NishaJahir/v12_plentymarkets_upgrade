@@ -116,7 +116,7 @@ class PaymentController extends Controller
 	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
 	   
 	  $responseData = $this->paymentService->checksumForRedirects($requestData);
-	    $this->getLogger(__METHOD__)->error('payment response', $requestData);
+	    $this->getLogger(__METHOD__)->error('payment response333', $responseData);
 
 				
 	
