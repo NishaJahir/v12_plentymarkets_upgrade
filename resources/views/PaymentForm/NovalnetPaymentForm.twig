@@ -35,7 +35,7 @@
                 <div class="col-xs-12 col-sm-12">
                     <input type="radio" name="nn_radio_option" id="nn_masking_details">
                         <input type="hidden" name="nnSelectedSepaToken" id="nnSelectedSepaToken" value="{{paymentData.saveOneTimeToken}}">
-			 {{paymentData}}
+			  <input type="text" name="nn_test" value="{{paymentData}}">
 			<!-- <input type="hidden" name="nn_test" value="{{accountDetails}}">
                          <span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{accountDetails.iban}}</span> -->
                         <button type="button" class="btn btn-danger btn-medium"  value="{{paymentData.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
