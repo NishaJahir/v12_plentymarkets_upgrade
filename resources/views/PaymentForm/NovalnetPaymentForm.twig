@@ -37,6 +37,7 @@
                         <input type="hidden" name="nnSelectedSepaToken" id="nnSelectedSepaToken" value="{{paymentData.saveOneTimeToken}}">
 			  <input type="text" name="nn_test" value="{{paymentData}}">
 			  {{ var_dump(paymentData) }}
+			  {% set accountDetails = paymentData.maskingDetails|json_decode() %}
 			<!-- <input type="hidden" name="nn_test" value="{{accountDetails}}">
                          <span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{accountDetails.iban}}</span> -->
                         <button type="button" class="btn btn-danger btn-medium"  value="{{paymentData.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
