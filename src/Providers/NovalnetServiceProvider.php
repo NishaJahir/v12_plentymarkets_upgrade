@@ -150,7 +150,6 @@ class NovalnetServiceProvider extends ServiceProvider
 					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
 				
-					$this->getLogger(__METHOD__)->error('before_corrected', $paymentDetails);
                                         foreach($paymentDetails as $key => $paymentDetail) {
 					  //$paymentDetails[$key]->iban = json_decode($paymentDetail->maskingDetails)->iban;
 					}
@@ -159,7 +158,6 @@ class NovalnetServiceProvider extends ServiceProvider
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
 					$this->getLogger(__METHOD__)->error('corrected', $paymentDetails);
 
-					
 					if($paymentKey == 'NOVALNET_CC') {
 								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
 						$ccCustomFields = $paymentService->getCcFormFields();
