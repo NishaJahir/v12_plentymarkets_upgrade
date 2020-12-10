@@ -937,27 +937,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         }
 	}
 	
-	public function checksumForRedirects($response)
-    {
-		$this->getLogger(__METHOD__)->error('checksum', $response);
-		
-		$strRevKey = implode(array_reverse(str_split($this->paymentHelper->getNovalnetConfig('novalnet_access_key'))));
-        // Condition to check whether the payment is redirect
-        if (! empty($response['checksum']) && ! empty($response['tid']) && !empty($response['transaction']['txn_secret']) && !empty($response['status'])) {
-            $token_string = $response['tid'] . $response['transaction']['txn_secret'] . $response['status'] . $strRevKey;
-            $generated_checksum = hash('sha256', $token_string);
-            
-            $data = [];
-            $data['transaction']['tid'] = $response['tid'];
-           
-            $responseData = $this->paymentHelper->executeCurl(json_encode($data), 'https://payport.novalnet.de/v2/transaction/details');
-            if ($generated_checksum !== $response['checksum']) {
-		    $notificationMessage = 'Checksum is invalid';
-                $this->pushNotification($notificationMessage, 'error', 100);
-            }
-	    return $responseData;
-        }
-    }
+	
 
     /**
      * Build the additional params
