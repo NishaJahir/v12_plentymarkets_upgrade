@@ -155,20 +155,20 @@ class PaymentService
     {
         $nnPaymentData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
         $this->sessionStorage->getPlugin()->setValue('nnPaymentData', null);
-        $this->getLogger(__METHOD__)->error('validate response', $nnPaymentData);
+      
         $nnPaymentData['mop']            = $this->sessionStorage->getPlugin()->getValue('mop');
         $nnPaymentData['payment_method'] = strtolower($this->paymentHelper->getPaymentKeyByMop($nnPaymentData['mop']));
         
 		if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
 		   $this->paymentHelper->createPlentyPayment($nnPaymentData);
 		}
-	    
+	  $this->getLogger(__METHOD__)->error('validate response updated', $nnPaymentData);    
 	    
         //$this->executePayment($nnPaymentData);
         
         $additionalInfo = $this->additionalInfo($nnPaymentData);
 	
-	if($nnPaymentData['payment_id'] == 96) {
+	if($nnPaymentData['payment_method'] == 'INSTALMENT_INVOICE') {
 		$instalmentInfo = [
 			'total_paid_amount' => $nnPaymentData['instalment']['cycle_amount'],
 			'instalment_cycle_amount' => $nnPaymentData['instalment']['cycle_amount'],
