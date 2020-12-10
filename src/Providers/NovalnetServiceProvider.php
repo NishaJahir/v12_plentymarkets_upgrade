@@ -1,4 +1,4 @@
-DEXXXXXXXXXXXXXX1956<?php
+<?php
 /**
  * This module is used for real time processing of
  * Novalnet payment module of customers.
