@@ -1,4 +1,4 @@
-<?php
+DEXXXXXXXXXXXXXX1956<?php
 /**
  * This module is used for real time processing of
  * Novalnet payment module of customers.
@@ -151,7 +151,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
 					$tmpPaymentDetails = [];
                                         foreach($paymentDetails as $key => $paymentDetail) {
-						$paymentDetail = json_decode($paymentDetail->maskingDetails)->iban;
+						$paymentDetail->iban = json_decode($paymentDetail->maskingDetails)->iban;
 						$tmpPaymentDetails[] = $paymentDetail;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
