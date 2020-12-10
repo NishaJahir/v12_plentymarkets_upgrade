@@ -148,12 +148,12 @@ class NovalnetServiceProvider extends ServiceProvider
 					 $billingAddressId = $basket->customerInvoiceAddressId;
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
 					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
-					$this->getLogger(__METHOD__)->error('db get', $paymentData);
+					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
 					$paymentData = [];
                                         foreach($paymentDetails as $paymentDetail) {
 					 $paymentData[] = json_decode($paymentDetail->maskingDetails);
 					}
-					
+					$additionalPaymentDetails = array_merge($paymentDetails, $paymentData)
 					//$jsonValue = ($paymentData['maskingDetails'],true);
 					$this->getLogger(__METHOD__)->error('JSON Details', $paymentData);
 					if($paymentKey == 'NOVALNET_CC') {
@@ -169,8 +169,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					   			'oneClickShopping'   => trim($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type')),
 					                        'instalmentNetAmount'  => $basket->basketAmount,
 								'orderCurrency' => $basket->currency,
-					                         'paymentDetails' => $paymentDetails,
-					   		         'paymentData' => $paymentData,
+					                         'paymentDetails' => array_merge($paymentDetails, $paymentData),
 								//'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
 					   			
