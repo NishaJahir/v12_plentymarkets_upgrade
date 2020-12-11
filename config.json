@@ -572,6 +572,15 @@
                   ]
                }
             },
+            "novalnet_instalment_invoice_min_amount":{  
+               "type":"inputText",
+               "required":false,
+               "label":"Config.minAmountLabel",
+               "options":{  
+                  "tooltip":"Config.minAmountTooltip",
+                  "defaultValue":""
+               }
+            },
             "novalnet_instalment_invoice_cycles":{
                "type":"multiCheckBox",
                "required":false,
