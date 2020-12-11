@@ -149,14 +149,13 @@ class NovalnetServiceProvider extends ServiceProvider
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
 					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
-					$tmpPaymentDetails = [];
-                                        foreach($paymentDetails as $key => $paymentDetail) {
-						$paymentDetail->iban = json_decode($paymentDetail->maskingDetails)->iban;
-						$tmpPaymentDetails[] = $paymentDetail;
+                                        
+					foreach($paymentDetails as $key => $paymentDetail) {
+						$paymentDetails[$key]->iban = json_decode($paymentDetail->maskingDetails)->iban;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
 					
-					$this->getLogger(__METHOD__)->error('corrected temp', $tmpPaymentDetails);
+					$this->getLogger(__METHOD__)->error('corrected temp', $paymentDetails);
 					$this->getLogger(__METHOD__)->error('JSON Details corrected 766', $test);
 
 					if($paymentKey == 'NOVALNET_CC') {
