@@ -154,7 +154,7 @@ class NovalnetServiceProvider extends ServiceProvider
 						$tmppaymentDetails[$key] = (object)['iban' => json_decode($paymentDetail->maskingDetails)->iban];
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$paymentDetails = array_merge($paymentDetails, (object) $tmppaymentDetails);
+					$paymentDetails = (object) array_merge((array) $paymentDetails, $tmppaymentDetails);
 					$this->getLogger(__METHOD__)->error('db object', $paymentDetails);
 
 					if($paymentKey == 'NOVALNET_CC') {
