@@ -979,62 +979,61 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     * @param string $paymentKey
     * @return string
     */
-    public function getPaymentDisplayStatus(Basket $basket, $paymentKey)
+    public function checkPaymentDisplayConditions(Basket $basket, $paymentKey)
     {
-	 if (!is_null($basket) && $basket instanceof Basket) {
-        $paymentActive = $this->config->get('Novalnet.'.$paymentKey.'_payment_active');
-        if ($paymentActive == 'true') {
-            // Get minimum amount value
-            $minimumAmount = $this->paymentHelper->getNovalnetConfig($paymentKeyLow . '_guarantee_min_amount');
-            $minimumAmount = ((preg_match('/^[0-9]*$/', $minimumAmount) && $minimumAmount >= '999')  ? $minimumAmount : '999');
-            $amount        = (sprintf('%0.2f', $basket->basketAmount) * 100);
-
-            $billingAddressId = $basket->customerInvoiceAddressId;
-            $billingAddress = $this->addressRepository->findAddressById($billingAddressId);
-            $customerBillingIsoCode = strtoupper($this->countryRepository->findIsoCode($billingAddress->countryId, 'iso_code_2'));
-
-            $shippingAddressId = $basket->customerShippingAddressId;
-
-            $addressValidation = false;
-            if(!empty($shippingAddressId))
-            {
-                $shippingAddress = $this->addressRepository->findAddressById($shippingAddressId);
-                $customerShippingIsoCode = strtoupper($this->countryRepository->findIsoCode($shippingAddress->countryId, 'iso_code_2'));
-
-                // Billing address
-                $billingAddress = ['street_address' => (($billingAddress->street) ? $billingAddress->street : $billingAddress->address1),
-                                   'city'           => $billingAddress->town,
-                                   'postcode'       => $billingAddress->postalCode,
-                                   'country'        => $customerBillingIsoCode,
-                                  ];
-                // Shipping address
-                $shippingAddress = ['street_address' => (($shippingAddress->street) ? $shippingAddress->street : $shippingAddress->address1),
-                                    'city'           => $shippingAddress->town,
-                                    'postcode'       => $shippingAddress->postalCode,
-                                    'country'        => $customerShippingIsoCode,
-                                   ];
-
-             }
-             else
-             {
-                 $addressValidation = true;
-             }
-            // Check guarantee payment
-            if ((((int) $amount >= (int) $minimumAmount && in_array(
-                $customerBillingIsoCode,
-                [
-                 'DE',
-                 'AT',
-                 'CH',
-                ]
-            ) && $basket->currency == 'EUR' && ($addressValidation || ($billingAddress === $shippingAddress)))
-            )) {
-                return true;
-            }  
+		if (!is_null($basket) && $basket instanceof Basket) {
+			$paymentActive = $this->config->get('Novalnet.'.$paymentKey.'_payment_active');
+			if ($paymentActive == 'true') {
+				// Minimum amount validation
+				$minimumAmount = $this->paymentHelper->getNovalnetConfig($paymentKeyLow . '_min_amount');
+				$minimumAmount = ((preg_match('/^[0-9]*$/', $minimumAmount) && $minimumAmount >= '1998')  ? $minimumAmount : '1998');
+				$amount        = (sprintf('%0.2f', $basket->basketAmount) * 100);
+				// Check instalment cycles
+				$instalementCycles = false;
+				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKeyLow . '_cycles'));
+				if($minimumAmount >= 1998) {
+					foreach($instalementCycles as $key => $value) {
+						$cycleAmount = ($amount / $value);
+						if($cycleAmount >= 999) {
+							$instalementCycles = true;
+						}
+					}
+				}
+				// Address validation
+				$billingAddressId = $basket->customerInvoiceAddressId;
+				$billingAddress = $this->addressRepository->findAddressById($billingAddressId);
+				if(!empty($basket->customerShippingAddressId)){
+					$shippingAddress = $this->addressRepository->findAddressById($basket->customerShippingAddressId);
+				}
+				// Get country validation value
+				$countryValidation = $this->EuropeanUnionCountryValidation($billingShippingDetails['billing']['country_code']);
+				$billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
+				// Check the payment condition
+				if((((int) $amount >= (int) $minimumAmount && $instalementCycles && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
+				)) {
+					return true;
+				}  
+			}
+		}
+		return false;
     }
-	 }
-    return false;
     
+    public function EuropeanUnionCountryValidation($countryCode)
+    {
+		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKeyLow . 'allow_b2b_customer');
+		$europeanUnionCountryCodes =  [
+            'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
+            'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL',
+            'PT', 'RO', 'SE', 'SI', 'SK', 'UK', 'CH'
+        ];
+		if(in_array($billingAddress['billing']['country_code'], ['DE', 'AT', 'CH'])) {
+			$countryValidation = true;
+		} elseif($allowB2B == true && in_array($countryCode, $europeanUnionCountryCodes)) {
+			$countryValidation = true;
+		} else {
+			$countryValidation = false;
+		}
+        return $countryValidation;
     }
     
 }
