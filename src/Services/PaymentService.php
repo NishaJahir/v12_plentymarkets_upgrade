@@ -999,6 +999,9 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 						}
 					}
 				}
+				$this->getLogger(__METHOD__)->error('min', $minimumAmount);
+				$this->getLogger(__METHOD__)->error('amount', $amount);
+				$this->getLogger(__METHOD__)->error('insta', $instalementCycles);
 				// Address validation
 				$billingAddressId = $basket->customerInvoiceAddressId;
 				$billingAddress = $this->addressRepository->findAddressById($billingAddressId);
@@ -1006,8 +1009,9 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 					$shippingAddress = $this->addressRepository->findAddressById($basket->customerShippingAddressId);
 				}
 				// Get country validation value
-				$countryValidation = $this->EuropeanUnionCountryValidation($billingShippingDetails['billing']['country_code']);
 				$billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
+				$countryValidation = $this->EuropeanUnionCountryValidation($billingShippingDetails['billing']['country_code']);
+				$this->getLogger(__METHOD__)->error('country', $countryValidation);
 				// Check the payment condition
 				if((((int) $amount >= (int) $minimumAmount && $instalementCycles && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
 				)) {
