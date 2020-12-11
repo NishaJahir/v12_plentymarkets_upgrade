@@ -149,13 +149,12 @@ class NovalnetServiceProvider extends ServiceProvider
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
 					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
-                                        $paymentDetails = (array) $paymentDetails;
-					$this->getLogger(__METHOD__)->error('db array', $paymentDetails);
+					$tmppaymentDetails = [];
 					foreach($paymentDetails as $key => $paymentDetail) {
-						array_merge($paymentDetails[$key], ['iban' => json_decode($paymentDetail->maskingDetails)->iban]);
+						$tmppaymentDetails[$key] = (object)['iban' => json_decode($paymentDetail->maskingDetails)->iban];
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$paymentDetails = (object) $paymentDetails;
+					$paymentDetails = array_merge($paymentDetails, (object) $tmppaymentDetails);
 					$this->getLogger(__METHOD__)->error('db object', $paymentDetails);
 
 					if($paymentKey == 'NOVALNET_CC') {
