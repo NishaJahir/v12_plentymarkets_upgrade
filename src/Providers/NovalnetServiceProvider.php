@@ -149,13 +149,13 @@ class NovalnetServiceProvider extends ServiceProvider
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
 					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', '')->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get', $paymentDetails);
-					$tmppaymentDetails = [];
+					$paymentDetails = json_decode(json_encode($paymentDetails), true);
 					foreach($paymentDetails as $key => $paymentDetail) {
-						$tmppaymentDetails[$key] = (object)['iban' => json_decode($paymentDetail->maskingDetails)->iban];
+						$paymentDetails[$key]['iban'] = json_decode($paymentDetail['maskingDetails'])->iban;
 					}
 					//$jsonValue = ($paymentData['maskingDetails'],true);
-					$this->getLogger(__METHOD__)->error('db temp', $tmppaymentDetails);
-					$paymentDetails = (object) array_merge_recursive((array) $paymentDetails, $tmppaymentDetails);
+					$this->getLogger(__METHOD__)->error('db temp', $paymentDetails);
+					$paymentDetails = json_decode(json_encode($paymentDetails));
 					$this->getLogger(__METHOD__)->error('db object', $paymentDetails);
 
 					if($paymentKey == 'NOVALNET_CC') {
