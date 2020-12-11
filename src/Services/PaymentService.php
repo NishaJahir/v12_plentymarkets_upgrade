@@ -1030,7 +1030,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL',
             'PT', 'RO', 'SE', 'SI', 'SK', 'UK', 'CH'
         ];
-		if(in_array($billingAddress['billing']['country_code'], ['DE', 'AT', 'CH'])) {
+		if(in_array($countryCode, ['DE', 'AT', 'CH'])) {
 			$countryValidation = true;
 		} elseif($allowB2B == true && in_array($countryCode, $europeanUnionCountryCodes)) {
 			$countryValidation = true;
