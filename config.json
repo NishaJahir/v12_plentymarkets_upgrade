@@ -554,7 +554,7 @@
                   "defaultValue":""
                }
             },
-            "novalnet_instalment_allow_b2b_customer":{
+            "novalnet_instalment_invoice_allow_b2b_customer":{
                "type":"selectBox",
                "required":false,
                "label":"Config.allowB2bCustomerLabel",
