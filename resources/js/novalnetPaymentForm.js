@@ -145,13 +145,14 @@ function removeCardDetails(token)
 
 // Remove the save card details based on the customer input
 function removeSavedCardRequestHandler(removeSavedCardParams) {
+    console.log(removeSavedCardParams);
     if ('XDomainRequest' in window && window.XDomainRequest !== null) {
         var xdr = new XDomainRequest(); // Use Microsoft XDR
         var removeSavedCardParams = $.param(removeSavedCardParams);
         xdr.open('POST', $('#removalProcessUrl').val());
         xdr.onload = function (result) {
             $('#remove_'+removeSavedCardParams['token']).remove();
-                alert($('#postUrl').val());
+                alert($('#removeCardDetail').val());
                 window.location.reload();
         };
         xdr.onerror = function () {
@@ -169,8 +170,8 @@ function removeSavedCardRequestHandler(removeSavedCardParams) {
                     console.log(result);
                        console.log($('#removalProcessUrl').val());
                     $('#remove_'+removeSavedCardParams['token']).remove();
+                    console.log($('#remove_'+removeSavedCardParams['token']').val());
                     alert($('#removeCardDetail').val());
-                    window.location.reload();
                
                 }
             }
