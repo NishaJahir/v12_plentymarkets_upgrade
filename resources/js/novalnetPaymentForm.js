@@ -139,6 +139,7 @@ function loadNovalnetCcIframe()
 function removeCardDetails(token)
 {
     var removeSavedCardParams = { 'token' : token };   
+    console.log(removeSavedCardParams);
     removeSavedCardRequestHandler(removeSavedCardParams);
 }
 
@@ -147,7 +148,7 @@ function removeSavedCardRequestHandler(removeSavedCardParams) {
     if ('XDomainRequest' in window && window.XDomainRequest !== null) {
         var xdr = new XDomainRequest(); // Use Microsoft XDR
         var removeSavedCardParams = $.param(removeSavedCardParams);
-        xdr.open('POST', jQuery('#pluginPath').val());
+        xdr.open('POST', $('#removalProcessUrl').val());
         xdr.onload = function (result) {
             $('#remove_'+removeSavedCardParams['token']).remove();
                 alert($('#postUrl').val());
@@ -160,11 +161,13 @@ function removeSavedCardRequestHandler(removeSavedCardParams) {
     } else {
         $.ajax(
             {
-                url      : jQuery('#postUrl').val(),
+                url      : $('#removalProcessUrl').val(),
                 type     : 'post',
                 dataType : 'html',
                 data     : removeSavedCardParams,
                 success  : function (result) {
+                    console.log(result);
+                       console.log($('#removalProcessUrl').val());
                     $('#remove_'+removeSavedCardParams['token']).remove();
                     alert($('#removeCardDetail').val());
                     window.location.reload();
