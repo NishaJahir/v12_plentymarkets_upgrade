@@ -83,3 +83,12 @@ width:100%;
     width: 89%;
 }
 
+.btnDelete {
+  padding: revert !important; 
+}
+
+.nnOneClick {
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
