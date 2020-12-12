@@ -96,5 +96,23 @@ class TransactionService
 	     $this->getLogger(__METHOD__)->error('update', $orderDetail);
        $database->save($orderDetail);
     }
+	
+	/**
+     * Delete an item from the To Do list
+     *
+     * @param int $id
+     * @return ToDo
+     */
+    public function removeCardDetails($key, $requestData)
+    {
+        /**
+         * @var DataBase $database
+         */
+        $database = pluginApp(DataBase::class);
+        $deleteToken = $database->query(TransactionLog::class)->where($key, '=', $requestData['nnSelectedSepaToken'])->get();
+	    $this->getLogger(__METHOD__)->error('delete', $deleteToken); 
+        $database->delete($deleteToken);
+        return $deleteToken;
+    }
     
 }
