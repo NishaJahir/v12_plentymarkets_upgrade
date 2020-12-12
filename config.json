@@ -90,7 +90,7 @@
                "label":"Config.inlineFormLabel",
                "options":{
                   "tooltip":"Config.inlineFormTooltip",
-                  "defaultValue":false
+                  "defaultValue":true
                }
             },
             "novalnet_cc_payment_name":{
@@ -130,7 +130,7 @@
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":false
+                  "defaultValue":true
                }
             },
             "novalnet_cc_payment_action":{
@@ -319,7 +319,7 @@
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":false
+                  "defaultValue":true
                }
             },
             "novalnet_sepa_payment_action":{
@@ -548,28 +548,18 @@
             "novalnet_instalment_invoice_on_hold":{
                "type":"inputText",
                "required":false,
-               "label":"Config.onHoldLabel",
+               "label":"Config.onHoldLabel",\
                "options":{
                   "tooltip":"Config.onHoldTooltip",
                   "defaultValue":""
                }
             },
-            "novalnet_instalment_invoice_allow_b2b_customer":{
-               "type":"selectBox",
+           "novalnet_instalment_invoice_allow_b2b_customer":{
+               "type":"checkBox",
                "required":false,
                "label":"Config.allowB2bCustomerLabel",
                "options":{
-                  "defaultValue":"true",
-                  "selectBoxValues":[
-                     {
-                        "value":"true",
-                        "caption":"Config.enableOption"
-                     },
-                     {
-                        "value":"false",
-                        "caption":"Config.disableOption"
-                     }
-                  ]
+                  "defaultValue":false
                }
             },
             "novalnet_instalment_invoice_min_amount":{  
@@ -703,7 +693,7 @@
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":false
+                  "defaultValue":true
                }
             },
             "novalnet_paypal_payment_action":{
