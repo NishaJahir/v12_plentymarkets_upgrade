@@ -594,7 +594,12 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     {
         return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/payment/novalnet/redirectPayment/';
     }
-
+    
+    public function getTokenRemovalUrl()
+    {
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/payment/novalnet/removeCard/';
+    }
+	
     /**
     * Get the payment process URL by using plenty payment key
     *
