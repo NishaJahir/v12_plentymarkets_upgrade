@@ -136,3 +136,43 @@ function loadNovalnetCcIframe()
       NovalnetUtility.createCreditCardForm(requestData);
 }
 
+function removeCardDetails(token)
+{
+    var removeSavedCardParams = { 'token' : token };   
+    removeSavedCardRequestHandler(removeSavedCardParams);
+}
+
+// Remove the save card details based on the customer input
+function removeSavedCardRequestHandler(removeSavedCardParams) {
+    if ('XDomainRequest' in window && window.XDomainRequest !== null) {
+        var xdr = new XDomainRequest(); // Use Microsoft XDR
+        var removeSavedCardParams = $.param(removeSavedCardParams);
+        xdr.open('POST', jQuery('#pluginPath').val());
+        xdr.onload = function (result) {
+            $('#remove_'+removeSavedCardParams['token']).remove();
+                alert($('#postUrl').val());
+                window.location.reload();
+        };
+        xdr.onerror = function () {
+            _result = false;
+        };
+        xdr.send(removeSavedCardParams);
+    } else {
+        $.ajax(
+            {
+                url      : jQuery('#postUrl').val(),
+                type     : 'post',
+                dataType : 'html',
+                data     : removeSavedCardParams,
+                success  : function (result) {
+                    $('#remove_'+removeSavedCardParams['token']).remove();
+                    alert($('#removeCardDetail').val());
+                    window.location.reload();
+               
+                }
+            }
+        );
+    }
+    
+    
+}
