@@ -111,7 +111,7 @@ class TransactionService
         $database = pluginApp(DataBase::class);
         $deleteToken = $database->query(TransactionLog::class)->where($key, '=', $requestData['nnSelectedSepaToken'])->get();
 	    $this->getLogger(__METHOD__)->error('delete', $deleteToken); 
-        $database->delete($deleteToken);
+        $database->delete($deleteToken[0]);
         return $deleteToken;
     }
     
