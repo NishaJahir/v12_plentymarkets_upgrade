@@ -223,4 +223,10 @@ class PaymentController extends Controller
                                    ]);
     }
     
+	public function removeCard()
+	{
+	    $requestData = $this->request->all();
+	     $this->getLogger(__METHOD__)->error('reve controller', $requestData);
+	     $this->paymentService->removeCardDetails($requestData);
+	}
 }
