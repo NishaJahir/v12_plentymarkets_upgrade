@@ -34,12 +34,15 @@
 									<input type="radio" name="nn_radio_option" id="nn_masking_details">
 									<input type="hidden" name="nnSelectedSepaToken" id="nnSelectedSepaToken" value="{{paymentDetail.saveOneTimeToken}}">
 									<span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{paymentDetail.iban}}</span>
-									<button type="button" class="btn btn-danger btnDelete"  value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
+									<button type="button" class="btn btn-danger btnDelete"  onclick="removeCardDetails('{{paymentDetail.saveOneTimeToken}}')" value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
+									
 								</div>
 							</div>
 						{% endfor %}
 							 <input type="radio" name="nnRadioOption" id="nnToggleForm"> {{trans("Novalnet::PaymentMethod.addNewAccountDetails")}}
 							 <input type="hidden" name="nn_new_form" id="nn_new_form">
+							 <input type="hidden" name="removalProcessUrl" id="removalProcessUrl" value="{{removalProcessUrl}}">
+							 <input type="hidden" name="removedCardDetail" id="removedCardDetail" value="{{removedCardDetail}}">
 						{% endif %}
 						</div>
 				        </div>
