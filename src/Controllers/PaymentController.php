@@ -25,7 +25,7 @@ use Novalnet\Services\PaymentService;
 use Plenty\Plugin\Templates\Twig;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Log\Loggable;
-
+use Novalnet\Services\TransactionService;
 /**
  * Class PaymentController
  *
@@ -74,6 +74,12 @@ class PaymentController extends Controller
      */
     private $config;
 
+	
+	/**
+     * @var transaction
+     */
+    private $transaction;
+	
     /**
      * PaymentController constructor.
      *
@@ -93,6 +99,7 @@ class PaymentController extends Controller
                                   FrontendSessionStorageFactoryContract $sessionStorage,
                                   BasketRepositoryContract $basketRepository,             
                                   PaymentService $paymentService,
+				 TransactionService $tranactionService,
                                   Twig $twig
                                 )
     {
@@ -104,6 +111,7 @@ class PaymentController extends Controller
         $this->basketRepository  = $basketRepository;
         $this->paymentService  = $paymentService;
         $this->twig            = $twig;
+	    $this->transaction = $tranactionService;
         $this->config          = $config;
     }
 
@@ -227,6 +235,6 @@ class PaymentController extends Controller
 	{
 	    $requestData = $this->request->all();
 	     $this->getLogger(__METHOD__)->error('reve controller', $requestData);
-	     $this->paymentService->removeCardDetails($requestData);
+	      $this->transaction->removeCardDetails($requestData);
 	}
 }
