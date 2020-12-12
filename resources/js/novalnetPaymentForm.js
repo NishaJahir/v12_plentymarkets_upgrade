@@ -170,7 +170,7 @@ function removeSavedCardRequestHandler(removeSavedCardParams) {
                     console.log(result);
                        console.log($('#removalProcessUrl').val());
                     $('#remove_'+removeSavedCardParams['token']).remove();
-                    console.log($('#remove_'+removeSavedCardParams['token']').val());
+                    console.log($('#remove_'+removeSavedCardParams['token']).val());
                     alert($('#removeCardDetail').val());
                
                 }
