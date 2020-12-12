@@ -235,6 +235,6 @@ class PaymentController extends Controller
 	{
 	    $requestData = $this->request->all();
 	     $this->getLogger(__METHOD__)->error('reve controller', $requestData);
-	      $this->transaction->removeCardDetails($requestData);
+	      $this->transaction->removeCardDetails('saveOneTimeToken', $requestData);
 	}
 }
