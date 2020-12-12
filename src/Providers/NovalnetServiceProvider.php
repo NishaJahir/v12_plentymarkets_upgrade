@@ -172,7 +172,7 @@ class NovalnetServiceProvider extends ServiceProvider
 					                        'instalmentNetAmount'  => $basket->basketAmount,
 								'orderCurrency' => $basket->currency,
 					                         'paymentDetails' => $paymentDetails,
-					                         'removedCardDetail' => $paymentHelper->getTranslatedText('removedCardDetail');
+					                         'removedCardDetail' => $paymentHelper->getTranslatedText('removedCardDetail'),
 					                         'removalProcessUrl' => $paymentService->getTokenRemovalUrl(),
 								//'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
