@@ -548,7 +548,7 @@
             "novalnet_instalment_invoice_on_hold":{
                "type":"inputText",
                "required":false,
-               "label":"Config.onHoldLabel",\
+               "label":"Config.onHoldLabel",
                "options":{
                   "tooltip":"Config.onHoldTooltip",
                   "defaultValue":""
