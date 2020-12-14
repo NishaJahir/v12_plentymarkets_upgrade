@@ -1033,7 +1033,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     
     public function EuropeanUnionCountryValidation($paymentKey, $countryCode)
     {
-		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKey . 'allow_b2b_customer');
+		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKey . '_allow_b2b_customer');
 	    $this->getLogger(__METHOD__)->error('allow b2b', $allowB2B);
 		$europeanUnionCountryCodes =  [
             'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
