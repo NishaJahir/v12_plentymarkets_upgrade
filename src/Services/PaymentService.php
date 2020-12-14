@@ -1017,7 +1017,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				}
 				// Get country validation value
 				$billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
-				$countryValidation = $this->EuropeanUnionCountryValidation($billingShippingDetails['billing']['country_code']);
+				$countryValidation = $this->EuropeanUnionCountryValidation($paymentKey, $billingShippingDetails['billing']['country_code']);
 				$this->getLogger(__METHOD__)->error('country', $countryValidation);
 				// Check the payment condition
 				if((((int) $amount >= (int) $minimumAmount && $instalementCyclesCheck && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
@@ -1031,9 +1031,10 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		return false;
     }
     
-    public function EuropeanUnionCountryValidation($countryCode)
+    public function EuropeanUnionCountryValidation($paymentKey, $countryCode)
     {
-		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKeyLow . 'allow_b2b_customer');
+		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKey . 'allow_b2b_customer');
+	    $this->getLogger(__METHOD__)->error('allow b2b', $allowB2B);
 		$europeanUnionCountryCodes =  [
             'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
             'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL',
@@ -1046,6 +1047,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		} else {
 			$countryValidation = false;
 		}
+	    $this->getLogger(__METHOD__)->error('allow b2b condn', $countryValidation);
         return $countryValidation;
     }
 	
