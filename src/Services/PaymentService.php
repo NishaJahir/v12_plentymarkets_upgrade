@@ -994,7 +994,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				$minimumAmount = ((preg_match('/^[0-9]*$/', $minimumAmount) && $minimumAmount >= '1998')  ? $minimumAmount : '1998');
 				$amount        = (sprintf('%0.2f', $basket->basketAmount) * 100);
 				// Check instalment cycles
-				$instalementCycles = false;
+				$instalementCyclesCheck = false;
 				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKey . '_cycles'));
 				$this->getLogger(__METHOD__)->error('corrected cycles', $instalementCycles);
 				if($minimumAmount >= 1998) {
@@ -1002,7 +1002,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 						$cycleAmount = ($amount / $value);
 						if($cycleAmount >= 999) {
 							$this->getLogger(__METHOD__)->error('corrected cycles val', $value);
-							$instalementCycles = true;
+							$instalementCyclesCheck = true;
 						}
 					}
 				}
@@ -1023,7 +1023,9 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				if((((int) $amount >= (int) $minimumAmount && $instalementCycles && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
 				)) {
 					return true;
-				}  
+				} else {
+					return false;
+				}
 			}
 		}
 		return false;
