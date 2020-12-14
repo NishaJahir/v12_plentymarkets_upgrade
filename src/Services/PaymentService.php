@@ -990,16 +990,18 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			$paymentActive = $this->config->get('Novalnet.'.$paymentKey.'_payment_active');
 			if ($paymentActive == 'true') {
 				// Minimum amount validation
-				$minimumAmount = $this->paymentHelper->getNovalnetConfig($paymentKeyLow . '_min_amount');
+				$minimumAmount = $this->paymentHelper->getNovalnetConfig($paymentKey . '_min_amount');
 				$minimumAmount = ((preg_match('/^[0-9]*$/', $minimumAmount) && $minimumAmount >= '1998')  ? $minimumAmount : '1998');
 				$amount        = (sprintf('%0.2f', $basket->basketAmount) * 100);
 				// Check instalment cycles
 				$instalementCycles = false;
-				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKeyLow . '_cycles'));
+				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKey . '_cycles'));
+				$this->getLogger(__METHOD__)->error('corrected cycles', $instalementCycles);
 				if($minimumAmount >= 1998) {
 					foreach($instalementCycles as $key => $value) {
 						$cycleAmount = ($amount / $value);
 						if($cycleAmount >= 999) {
+							$this->getLogger(__METHOD__)->error('corrected cycles val', $value);
 							$instalementCycles = true;
 						}
 					}
