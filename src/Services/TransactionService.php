@@ -108,10 +108,14 @@ class TransactionService
         /**
          * @var DataBase $database
          */
+	     $this->getLogger(__METHOD__)->error('delete service', $requestData); 
         $database = pluginApp(DataBase::class);
-        $deleteToken = $database->query(TransactionLog::class)->where($key, '=', $requestData['nnSelectedSepaToken'])->get();
+        $deleteToken = $database->query(TransactionLog::class)->where($key, '=', $requestData['token'])->get();
 	    $this->getLogger(__METHOD__)->error('delete', $deleteToken); 
         $database->delete($deleteToken[0]);
+	    
+	    $final_result = $database->query(TransactionLog::class)->where('saveOneTimeToken', '!=', '')->get();
+	    $this->getLogger(__METHOD__)->error('result', $final_result); 
         return $deleteToken;
     }
     
