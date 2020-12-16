@@ -32,6 +32,8 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Model;
  * @property string  $saveOneTimeToken
  * @property array   $maskingDetails
  * @property array   $instalmentInfo
+ *
+ * @Nullable(columns={"saveOneTimeToken","maskingDetails","instalmentInfo"})
  */
 class TransactionLog extends Model
 {
