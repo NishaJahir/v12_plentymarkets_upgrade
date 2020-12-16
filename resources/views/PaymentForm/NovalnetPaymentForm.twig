@@ -31,22 +31,22 @@
 						{% for paymentDetail in paymentDetails %}
 							<div class="row" id="remove_{{paymentDetail.saveOneTimeToken}}">
 								<div class="col-xs-12 col-sm-12">
-									<input type="radio" name="nnRadioOption">
-									<input type="hidden" name="nnSelectedSepaToken" value="{{paymentDetail.saveOneTimeToken}}">
+									<input type="radio" name="nnRadioOption" id="maskingDetails">
+									<input type="hidden" name="novalnetsepaSelectedToken" value="{{paymentDetail.saveOneTimeToken}}">
 									<span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{paymentDetail.iban}}</span>
 									<button type="button" class="btn btn-danger btnDelete"  onclick="removeCardDetails('{{paymentDetail.saveOneTimeToken}}')" value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
 									
 								</div>
 							</div>
 						{% endfor %}
-							 <input type="radio" name="nnRadioOption" id="nnToggleForm"> {{trans("Novalnet::PaymentMethod.addNewAccountDetails")}}
-							 <input type="hidden" name="nn_new_form" id="nn_new_form">
+							 <input type="radio" name="radioOption" id="toggleForm"> {{trans("Novalnet::PaymentMethod.addNewAccountDetails")}}
+							 <input type="hidden" name="newForm" id="newForm">
 							 <input type="hidden" name="removalProcessUrl" id="removalProcessUrl" value="{{removalProcessUrl}}">
 							 <input type="hidden" name="removedCardDetail" id="removedCardDetail" value="{{removedCardDetail}}">
 						{% endif %}
 						</div>
 				        </div>
-		      <div class="row nnOneClick">
+		      <div class="row">
 				<div class="col-xs-12 col-sm-12">
 					{%if oneClickShopping is not empty %}
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:10px;height:10px;"><path style="fill:#0080c9;" d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path></svg>
@@ -54,7 +54,7 @@
                     {% endif %}
 				</div>
 		    </div>
-			<div class="row">
+			<div class="row newCardDetails">
 				<div class="col-xs-12 col-sm-12">
 					<div data-model="nn_sepa_iban" class="input-unit">
 						<input type="text" name="nnSepaIban" autocomplete="off" id="nnSepaIban">
