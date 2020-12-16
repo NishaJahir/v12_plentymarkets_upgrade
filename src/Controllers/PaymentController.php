@@ -185,6 +185,14 @@ class PaymentController extends Controller
                 $this->paymentService->pushNotification($notificationMessage, 'error', 100);
                 return $this->response->redirectTo('checkout');
         }
+	$paymentKey = explode('_', strtolower($requestData['paymentKey']));    
+	if (!empty($paymentKey[0].$paymentKey[1].'SelectedToken') && empty('newForm')) {
+                $paymentRequestParameters['transaction']['payment_data']['token'] = $paymentKey[0].$paymentKey[1].'SelectedToken';
+	} 
+	    
+	if($this->config->get('Novalnet.'. strtolower($requestData['paymentKey'] .'_shopping_type') == true) {
+			  $serverRequestData['data']['transaction']['create_token'] = 1;  
+		     }
         
         if($requestData['paymentKey'] == 'NOVALNET_CC') {
             $serverRequestData['data']['transaction']['payment_data']['pan_hash'] = $requestData['nnCcPanHash'];
@@ -197,12 +205,12 @@ class PaymentController extends Controller
                 return $this->response->redirectTo('place-order');
             }
         } elseif ( $requestData['paymentKey'] == 'NOVALNET_SEPA' ) {
-		    if($this->config->get('Novalnet.novalnet_sepa_shopping_type') == true) {
-			  $serverRequestData['data']['transaction']['create_token'] = 1;  
-		     }
+		
+		   if (empty($paymentKey[0].$paymentKey[1].'SelectedToken')) {
+    
 			    $serverRequestData['data']['transaction']['payment_data']['bank_account_holder'] = $serverRequestData['data']['customer']['first_name'] . ' ' . $serverRequestData['data']['customer']['last_name'];
 			    $serverRequestData['data']['transaction']['payment_data']['iban'] = $requestData['nnSepaIban'];   
-		    
+		   }  
             } elseif ($requestData['paymentKey'] == 'NOVALNET_INSTALMENT_INVOICE' ) {
 		$serverRequestData['data']['transaction']['payment_type'] = 'INSTALMENT_INVOICE';
 		 $serverRequestData['data']['instalment']['interval'] = '1m';
