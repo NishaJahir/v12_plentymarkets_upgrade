@@ -1,8 +1,6 @@
 var $ = jQuery.noConflict();
 var paymentName = $('#paymentKey').val();
-var updated = paymentName.split("_");
-var res = updated.toLowerCase();
-console.log(res);
+
 
 $(document).ready( function () {
     
@@ -13,15 +11,7 @@ $(document).ready( function () {
             $("#newCardDetails").hide();
         }
         
-         $("input[type='radio']").click(function(){
-            var tokenValue = $("input[id='maskingDetails']:checked").val();
-            if(tokenValue){
-                var token = $("#nn_saved_" + payment_name  + "_token").val();
-                $('#' +  res[0] + res[1] + 'nnSelectedToken').val(token);
-            } else {
-                $('#' +  res[0] + res[1] + 'nnSelectedToken').val('');
-            }
-    });
+        
 
         $("input[name='radioOption']").on(
             'click', function () {
