@@ -6,11 +6,12 @@ $(document).ready( function () {
     
     //~ Save card details process
         if ($("#toggleForm").length <= 0 || $("#toggleForm").is(':checked') ) {
-            $("#radioOption").show();
+            $("#newCardDetails").show();
         } else {
             $("#newCardDetails").hide();
         }
-        
+       
+      
         
 
         $("input[name='radioOption']").on(
