@@ -1,6 +1,8 @@
 var $ = jQuery.noConflict();
 var paymentName = $('#paymentKey').val();
-
+var lowerPaymentName = paymentName.toLowerCase();
+var splittedPaymentName = lowerPaymentName.split('_');
+   console.log(splittedPaymentName);
 
 $(document).ready( function () {
     
@@ -11,7 +13,14 @@ $(document).ready( function () {
             $("#newCardDetails").hide();
         }
        
-      
+       $("input[type='radio']").click(function(){
+            var tokenValue = $("input[id='maskingDetails']:checked").val();
+            if(tokenValue){
+                $('#'+ splittedPaymentName[0] + splittedPaymentName[1] + 'token').val(token);
+            } else {
+                jQuery('#nn_selected_'+ payment_name +'_token').val('');
+            }
+    });
         
 
         $("input[name='radioOption']").on(
