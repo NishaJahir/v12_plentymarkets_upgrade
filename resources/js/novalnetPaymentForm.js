@@ -15,7 +15,7 @@ $(document).ready( function () {
 
         $("input[name='radioOption']").on(
             'click', function () {
-                if($(this).attr('id') == 'nnToggleForm') {
+                if($(this).attr('id') == 'toggleForm') {
                     $("#newCardDetails").show();
                     $("#newForm").val('1');
                 } else {
