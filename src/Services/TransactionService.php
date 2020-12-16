@@ -111,10 +111,11 @@ class TransactionService
 	     $this->getLogger(__METHOD__)->error('delete service', $requestData); 
         $database = pluginApp(DataBase::class);
         $orderDetails = $database->query(TransactionLog::class)->where($key, '=', $requestData['token'])->get();
+	 $this->getLogger(__METHOD__)->error('details123', $orderDetails);
 	$orderDetail = $orderDetails[0];
-	$orderDetail->saveOneTimeToken = 0;
-	    $this->getLogger(__METHOD__)->error('details', $orderDetails);
-	    $database->save($orderDetail);
+	$orderDetail->saveOneTimeToken = null;
+	$orderDetail->maskingDetails = null;
+	$database->save($orderDetail);
         //$database->delete($deleteToken[0]);
 	    
 	    $final_result = $database->query(TransactionLog::class)->where('tid', '=', $orderDetail->tid)->get();
