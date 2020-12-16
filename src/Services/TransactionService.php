@@ -49,10 +49,22 @@ class TransactionService
             $transaction->tid                 = $transactionData['tid'];
             $transaction->paymentName         = $transactionData['payment_name'];
 	    $transaction->customerEmail       = $transactionData['customer_email'];
-            $transaction->additionalInfo      = !empty($transactionData['additional_info']) ? $transactionData['additional_info'] : null;
-	    $transaction->saveOneTimeToken      = !empty($transactionData['save_card_token']) ? $transactionData['save_card_token'] : null;
-	    $transaction->maskingDetails      = !empty($transactionData['mask_details']) ? $transactionData['mask_details'] : null;
-	    $transaction->instalmentInfo      = !empty($transactionData['instalment_info']) ? $transactionData['instalment_info'] : null;
+	   if(!empty($transactionData['additional_info'])) {
+	        $transaction->additionalInfo  = $transactionData['additional_info'];
+	   }
+	   if(!empty($transaction->saveOneTimeToken)) {
+		$transaction->saveOneTimeToken =    $transactionData['save_card_token'];
+	   }
+		if(!empty($transaction->maskingDetails)) {
+			$transaction->maskingDetails = $transactionData['mask_details'];
+		}
+		if(!empty($transaction->instalmentInfo)) {
+		$transaction->instalmentInfo = $transactionData['instalment_info'];
+		}
+           // $transaction->additionalInfo      = !empty($transactionData['additional_info']) ? $transactionData['additional_info'] : null;
+	    //$transaction->saveOneTimeToken      = !empty($transactionData['save_card_token']) ? $transactionData['save_card_token'] : null;
+	    //$transaction->maskingDetails      = !empty($transactionData['mask_details']) ? $transactionData['mask_details'] : null;
+	    //$transaction->instalmentInfo      = !empty($transactionData['instalment_info']) ? $transactionData['instalment_info'] : null;
             
             $database->save($transaction);
         } catch (\Exception $e) {
