@@ -18,7 +18,7 @@ $(document).ready( function () {
             if(tokenValue){
                 $('#'+ splittedPaymentName[0] + splittedPaymentName[1] + 'token').val(token);
             } else {
-                jQuery('#nn_selected_'+ payment_name +'_token').val('');
+                jQuery('#'+ splittedPaymentName[0] + splittedPaymentName[1] + 'token').val('');
             }
     });
         
