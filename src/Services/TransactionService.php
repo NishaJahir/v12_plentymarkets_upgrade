@@ -50,7 +50,7 @@ class TransactionService
             $transaction->paymentName         = $transactionData['payment_name'];
 	    $transaction->customerEmail       = $transactionData['customer_email'];
          $transaction->additionalInfo      = !empty($transactionData['additional_info']) ? $transactionData['additional_info'] : null;
-	$transaction->saveOneTimeToken      = !empty($transactionData['save_card_token']) ? $transactionData['save_card_token'] : '';
+	$transaction->saveOneTimeToken      = !empty($transactionData['save_card_token']) ? $transactionData['save_card_token'] : "";
 	$transaction->maskingDetails      = !empty($transactionData['mask_details']) ? $transactionData['mask_details'] : null;
 	$transaction->instalmentInfo      = !empty($transactionData['instalment_info']) ? $transactionData['instalment_info'] : null;
             
@@ -113,7 +113,7 @@ class TransactionService
         $orderDetails = $database->query(TransactionLog::class)->where($key, '=', $requestData['token'])->get();
 	 $this->getLogger(__METHOD__)->error('details123', $orderDetails);
 	$orderDetail = $orderDetails[0];
-	$orderDetail->saveOneTimeToken = null;
+	$orderDetail->saveOneTimeToken = "";
 	$orderDetail->maskingDetails = null;
 	$database->save($orderDetail);
         //$database->delete($deleteToken[0]);
