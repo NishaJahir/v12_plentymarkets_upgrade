@@ -1,7 +1,40 @@
 var $ = jQuery.noConflict();
 var paymentName = $('#paymentKey').val();
+var updated = paymentName.split("_");
+var res = updated.toLowerCase();
+console.log(res);
 
 $(document).ready( function () {
+    
+    //~ Save card details process
+        if (jQuery("#nnToggleForm").length <= 0 || jQuery("#nnToggleForm").is(':checked') ) {
+            jQuery("#radioOption").show();
+        } else {
+            jQuery("#newCardDetails").hide();
+        }
+        
+         jQuery("input[type='radio']").click(function(){
+            var tokenValue = jQuery("input[id='maskingDetails']:checked").val();
+            if(tokenValue){
+                var token = jQuery("#nn_saved_" + payment_name  + "_token").val();
+                jQuery('#nnSelected'+ res[0] + res[1] +'_token').val(token);
+            } else {
+                jQuery('#nnSelected'+ res[0] + res[1] +'_token').val('');
+            }
+    });
+
+        jQuery("input[name='radioOption']").on(
+            'click', function () {
+                if(jQuery(this).attr('id') == 'nnToggleForm') {
+                    jQuery("#newCardDetails").show();
+                    jQuery("#newForm").val('1');
+                } else {
+                    jQuery("#newCardDetails").hide();
+                }
+            }
+        );
+    
+        jQuery("input[name='radioOption']:first").attr("checked","checked");
     
     // For credit card payment form process
         if (paymentName == 'NOVALNET_CC') {
