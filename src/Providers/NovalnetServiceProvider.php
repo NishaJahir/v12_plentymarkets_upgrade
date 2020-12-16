@@ -147,8 +147,8 @@ class NovalnetServiceProvider extends ServiceProvider
 				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
 					 $billingAddressId = $basket->customerInvoiceAddressId;
         $billingAddress = $addressRepository->findAddressById($billingAddressId);
-					//$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', 0)->where('maskingDetails', '!=', '')->orderBy('id','DESC')->limit(2)->get();
-					$paymentDetails = $dataBase->query(TransactionLog::class)->where([['paymentName', '=', strtolower($paymentKey)],['customerEmail', '=', $billingAddress->email]])->whereNull([['maskingDetails', 'and', false], ['saveOneTimeToken', 'and', false]])->orderBy('id','DESC')->limit(2)->get();
+					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->orWhereNull('saveOneTimeToken')->orWhereNull('maskingDetails')->orderBy('id','DESC')->limit(2)->get();
+					//$paymentDetails = $dataBase->query(TransactionLog::class)->where([['paymentName', '=', strtolower($paymentKey)],['customerEmail', '=', $billingAddress->email]])->whereNull([['maskingDetails', 'and', false], ['saveOneTimeToken', 'and', false]])->orderBy('id','DESC')->limit(2)->get();
 					$this->getLogger(__METHOD__)->error('db get new updated', $paymentDetails);
 					$paymentDetails = json_decode(json_encode($paymentDetails), true);
 					foreach($paymentDetails as $key => $paymentDetail) {
