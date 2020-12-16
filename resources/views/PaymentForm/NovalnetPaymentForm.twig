@@ -28,6 +28,7 @@
 						<div class="col-xs-12 col-sm-12">
 						{% if paymentDetails is not empty and oneClickShopping is not empty %}
 						{% for paymentDetail in paymentDetails %}
+						    
 							<div class="row" id="remove_{{paymentDetail.saveOneTimeToken}}">
 								<div class="col-xs-12 col-sm-12">
 									<input type="radio" name="radioOption" id="maskingDetails">
