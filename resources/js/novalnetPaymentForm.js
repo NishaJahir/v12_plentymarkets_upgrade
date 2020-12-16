@@ -5,7 +5,7 @@ var paymentName = $('#paymentKey').val();
 $(document).ready( function () {
     
     //~ Save card details process
-        if ($("#nnToggleForm").length <= 0 || $("#nnToggleForm").is(':checked') ) {
+        if ($("#toggleForm").length <= 0 || $("#toggleForm").is(':checked') ) {
             $("#radioOption").show();
         } else {
             $("#newCardDetails").hide();
