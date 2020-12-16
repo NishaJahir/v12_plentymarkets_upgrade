@@ -21,7 +21,7 @@ use Plenty\Modules\Plugin\DataBase\Contracts\Migrate;
  * Class UpgradeTransactionTable
  * @package Novalnet\Migrations
  */
-class CreateAndUpdateTransactionTableAdd
+class CreateAndUpdateTransactionDetails
 {
     /**
      * Create and update transaction log table
