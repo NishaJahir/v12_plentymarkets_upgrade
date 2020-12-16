@@ -190,7 +190,7 @@ class PaymentController extends Controller
                 $paymentRequestParameters['transaction']['payment_data']['token'] = $paymentKey[0].$paymentKey[1].'SelectedToken';
 	} 
 	    
-	if($this->config->get('Novalnet.'. strtolower($requestData['paymentKey'] .'_shopping_type') == true) {
+	if($this->config->get('Novalnet.'. strtolower($requestData['paymentKey']) .'_shopping_type') == true) {
 			  $serverRequestData['data']['transaction']['create_token'] = 1;  
 		     }
         
