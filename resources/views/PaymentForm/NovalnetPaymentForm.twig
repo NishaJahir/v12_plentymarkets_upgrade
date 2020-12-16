@@ -31,8 +31,8 @@
 						{% for paymentDetail in paymentDetails %}
 							<div class="row" id="remove_{{paymentDetail.saveOneTimeToken}}">
 								<div class="col-xs-12 col-sm-12">
-									<input type="radio" name="nn_radio_option" id="nn_masking_details">
-									<input type="hidden" name="nnSelectedSepaToken" id="nnSelectedSepaToken" value="{{paymentDetail.saveOneTimeToken}}">
+									<input type="radio" name="nnRadioOption">
+									<input type="hidden" name="nnSelectedSepaToken" value="{{paymentDetail.saveOneTimeToken}}">
 									<span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{paymentDetail.iban}}</span>
 									<button type="button" class="btn btn-danger btnDelete"  onclick="removeCardDetails('{{paymentDetail.saveOneTimeToken}}')" value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
 									
