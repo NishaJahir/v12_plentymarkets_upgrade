@@ -24,11 +24,13 @@ use Plenty\Modules\Basket\Events\Basket\AfterBasketChanged;
 use Plenty\Modules\Basket\Events\BasketItem\AfterBasketItemAdd;
 use Plenty\Modules\Payment\Method\Contracts\PaymentMethodContainer;
 use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Plugin\Log\Loggable;
 use Novalnet\Helper\PaymentHelper;
 use Novalnet\Services\PaymentService;
+use Novalnet\Services\TransactionService;
 use Plenty\Plugin\Templates\Twig;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Modules\Order\Pdf\Events\OrderPdfGenerationEvent;
@@ -38,6 +40,8 @@ use Plenty\Modules\Plugin\DataBase\Contracts\DataBase;
 use Plenty\Modules\Plugin\DataBase\Contracts\Query;
 use Novalnet\Models\TransactionLog;
 use Plenty\Modules\Document\Models\Document;
+use Novalnet\Constants\NovalnetConstants;
+
 
 use Novalnet\Methods\NovalnetCcPaymentMethod;
 use Novalnet\Methods\NovalnetSepaPaymentMethod;
@@ -50,6 +54,7 @@ use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 
 /**
  * Class NovalnetServiceProvider
+ *
  * @package Novalnet\Providers
  */
 class NovalnetServiceProvider extends ServiceProvider
@@ -72,116 +77,126 @@ class NovalnetServiceProvider extends ServiceProvider
      * @param PaymentService $paymentService
      * @param BasketRepositoryContract $basketRepository
      * @param PaymentMethodContainer $payContainer
+     * @param PaymentMethodRepositoryContract $paymentMethodService
      * @param FrontendSessionStorageFactoryContract $sessionStorage
+     * @param TransactionService $transactionLogData
      * @param Twig $twig
      * @param ConfigRepository $config
-     * @param PaymentRepositoryContract $paymentRepository
-     * @param DataBase $dataBase
-     * @param EventProceduresService $eventProceduresService
      */
     public function boot( Dispatcher $eventDispatcher,
                           PaymentHelper $paymentHelper,
-                          PaymentService $paymentService,
                           AddressRepositoryContract $addressRepository,
+                          PaymentService $paymentService,
                           BasketRepositoryContract $basketRepository,
                           PaymentMethodContainer $payContainer,
+                          PaymentMethodRepositoryContract $paymentMethodService,
                           FrontendSessionStorageFactoryContract $sessionStorage,
+                          TransactionService $transactionLogData,
                           Twig $twig,
                           ConfigRepository $config,
                           PaymentRepositoryContract $paymentRepository,
                           DataBase $dataBase,
                           EventProceduresService $eventProceduresService)
     {
+
         // Register the Novalnet payment methods in the payment method container
-        $payContainer->register('plenty_novalnet::NOVALNET_CC', NovalnetCcPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_CC', NovalnetCcPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_SEPA', NovalnetSepaPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_SEPA', NovalnetSepaPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_INVOICE', NovalnetInvoicePaymentMethod::class,
+	    $payContainer->register('Novalnet::NOVALNET_INVOICE', NovalnetInvoicePaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_INSTALMENT_INVOICE', NovalnetInstalmentbyInvoicePaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_INSTALMENT_INVOICE', NovalnetInstalmentbyInvoicePaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
-        $payContainer->register('plenty_novalnet::NOVALNET_PAYPAL', NovalnetPaypalPaymentMethod::class,
+        $payContainer->register('Novalnet::NOVALNET_PAYPAL', NovalnetPaypalPaymentMethod::class,
             [
                 AfterBasketChanged::class,
                 AfterBasketItemAdd::class,
                 AfterBasketCreate::class
             ]);
         
+        
+        
         // Listen for the event that gets the payment method content
         $eventDispatcher->listen(GetPaymentMethodContent::class,
-                function(GetPaymentMethodContent $event) use($paymentHelper, $paymentService, $addressRepository,  $basketRepository, $sessionStorage, $twig, $config, $dataBase)
+                function(GetPaymentMethodContent $event) use($config, $paymentHelper, $addressRepository, $paymentService, $basketRepository, $sessionStorage, $twig)
                 {
+        
                     if($paymentHelper->getPaymentKeyByMop($event->getMop()))
                     {   
                         $paymentKey = $paymentHelper->getPaymentKeyByMop($event->getMop());
+                        $basket = $basketRepository->load();			
+						$billingAddressId = $basket->customerInvoiceAddressId;
+						$address = $addressRepository->findAddressById($billingAddressId);
                         $name = trim($config->get('Novalnet.' . strtolower($paymentKey) . '_payment_name'));
                         $paymentName = ($name ? $name : $paymentHelper->getTranslatedText(strtolower($paymentKey)));
-                        $basket = $basketRepository->load();
-                        // Get the payment request data
-                        $paymentRequestParameters = $paymentService->getPaymentRequestParameters($basket, $paymentKey);
-                        if (empty($paymentRequestParameters['data']['customer']['first_name']) && empty($paymentRequestParameters['data']['customer']['last_name'])) {
-                            $content = $paymentHelper->getTranslatedText('firstLastNameError');
-                            $contentType = 'errorCode';
+                        $redirect = $paymentService->isRedirectPayment($paymentKey);    
+                            
+                        if ($redirect && $paymentKey != 'NOVALNET_CC') { # Redirection payments
+                            $serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);
+                           if (empty($serverRequestData['data']['first_name']) && empty($serverRequestData['data']['last_name'])) {
+                            $content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
+                            $contentType = 'errorCode';   
+                           } else {
+                                 $sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData['data']);
+                                        $sessionStorage->getPlugin()->setValue('nnPaymentUrl', $serverRequestData['url']);
+                                        $content = '';
+                                        $contentType = 'continue';
+                           }
+                        } 
+			     elseif(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
+				$encodedKey = base64_encode('vendor='.$paymentHelper->getNovalnetConfig('novalnet_vendor_id').'&product='.$paymentHelper->getNovalnetConfig('novalnet_product_id').'&server_ip='.$paymentHelper->getServerAddress().'&lang='.$sessionStorage->getLocaleSettings()->language);
+			    	$endUserName = $address->firstName .' '. $address->lastName;
+				$endCustomerName = $paymentService->getCustomerName($address);		
+				     
+							$content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
+								'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
+								'paymentMopKey'       =>  $paymentKey,
+								'paymentName' 		  => $paymentName,
+								'nnCcFormUrl'           => 'https://secure.novalnet.de/cc?api=' . $encodedKey,
+								'nnFormDesign'          =>  $paymentService->getCcDesignConfig(),
+								'endcustomername'     => empty(trim($endUserName)) ? $endCustomerName['firstName'] .' '. $endCustomerName['lastName'] : $endUserName,
+								'instalmentNetAmount'  => $basket->basketAmount,
+								'orderCurrency' => $basket->currency,
+								'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
+								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
+							]);	
+								
+                            $contentType = 'htmlContent';   
                         } else {
-                            if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
-                                $contentType = 'htmlContent';
-                                $billingAddressId = $basket->customerInvoiceAddressId;
-                                $billingAddress = $addressRepository->findAddressById($billingAddressId);
-                                $savedPaymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', "")->whereNull('maskingDetails', 'and', true)->orderBy('id','DESC')->limit(2)->get();
-                                $savedPaymentDetails = json_decode(json_encode($savedPaymentDetails), true);
-                                foreach($savedPaymentDetails as $key => $paymentDetail) {
-                                    $savedPaymentDetails[$key]['iban'] = json_decode($paymentDetail['maskingDetails'])->iban;
-                                }
-                                if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA'])) {
-                                    $ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
-                                    $ccCustomFields = $paymentService->getCcFormFields();
-                                    $content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
-                                        'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
-                                        'paymentMopKey'       =>  $paymentKey,
-                                        'paymentName'         => $paymentName,
-                                        'ccFormDetails'       => !empty($ccFormDetails)? $ccFormDetails : '',
-                                        'ccCustomFields'       => !empty($ccCustomFields)? $ccCustomFields : '',
-                                        'oneClickShopping'   => (int) ($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type') == true),
-                                        'savedPaymentDetails' => $savedPaymentDetails,
-                                        'removedSavedPaymentDetail' => $paymentHelper->getTranslatedText('removedSavedPaymentDetail'),
-                                        'savedPaymentDetailsRemovalUrl' => $paymentService->getSavedTokenRemovalUrl(),
-                                    ]);
-                                } elseif (in_array($paymentKey, ['NOVALNET_INSTALMENT_INVOICE'])) {
-                                    $content = $twig->render('Novalnet::PaymentForm.NovalnetAdditionalPaymentForm', [
-                                    'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
-                                    'paymentMopKey'       =>  $paymentKey,
-                                    'paymentName'         => $paymentName,
-                                    'instalmentNetAmount'  => $basket->basketAmount,
-                                    'orderCurrency' => $basket->currency,
-                                    'instalmentCycles' => explode(',', $config->get('Novalnet.' . strtolower($paymentKey . '_cycles')))
-                                    ]);
-                                }
-                            } else {
-                                    $sessionStorage->getPlugin()->setValue('nnPaymentData', $paymentRequestParameters);
-                                    $content = '';
-                                    $contentType = 'continue';
-                            }
+							// Handling the without form payment and redirection payment
+							if($paymentKey == 'NOVALNET_INVOICE')
+							{
+								$content = '';
+								$contentType = 'continue';
+								$serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);
+								$this->getLogger(__METHOD__)->error('request', $serverRequestData);
+								if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
+										$content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
+										$contentType = 'errorCode';   
+								 }
+								$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);
+							} 
                         }
-                                    $event->setValue($content);
-                                    $event->setType($contentType);
-                    } 
+                                $event->setValue($content);
+                                $event->setType($contentType);
+                        } 
                 });
 
         // Listen for the event that executes the payment
@@ -192,40 +207,70 @@ class NovalnetServiceProvider extends ServiceProvider
                     $sessionStorage->getPlugin()->setValue('nnOrderNo',$event->getOrderId());
                     $sessionStorage->getPlugin()->setValue('mop',$event->getMop());
                     $paymentKey = $paymentHelper->getPaymentKeyByMop($event->getMop());
-                    $paymentService->performServerCall();
-                    $paymentService->validatePaymentResponse();
+
+                    if(!$paymentService->isRedirectPayment($paymentKey)) {
+			 $paymentService->paymentCalltoNovalnetServer();
+                         $paymentService->validateResponse();
+                    } else {
+                        $paymentProcessUrl = $paymentService->getRedirectPaymentUrl();
+                        $event->setType('redirectUrl');
+                        $event->setValue($paymentProcessUrl);
+                    }
                 }
-            });
+            }
+        );
         
-     
-        // Adding transaction comments on Invoice PDF
-        
-        // Listen for the document generation event
+     // Invoice PDF Generation
+    
+    // Listen for the document generation event
         $eventDispatcher->listen(OrderPdfGenerationEvent::class,
-        function (OrderPdfGenerationEvent $event) use ($paymentHelper, $paymentService, $paymentRepository) {
+        function (OrderPdfGenerationEvent $event) use ($dataBase, $paymentHelper, $paymentService, $paymentRepository, $transactionLogData) {
             
         /** @var Order $order */ 
         $order = $event->getOrder();
-        if (!empty($order->id)) {
-            $payments = $paymentRepository->getPaymentsByOrderId($order->id);
-            $paymentKey = $paymentHelper->getPaymentKeyByMop($payments[0]->mopId);
-            $dbDetails = $paymentService->getDatabaseValues($order->id);
-            try {
-                if (in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INVOICE', 'NOVALNET_INSTALMENT_INVOICE', 'NOVALNET_PAYPAL']) && !empty($dbDetails['plugin_version'])
-                ) {
-                    $transactionCommentVal = $paymentService->getTransactionCommentVal($order->id);
-                    $transactionComments = $paymentService->formTransactionCommentsInvoicePDF($transactionCommentVal);
-                    $orderPdfGenerationModel = pluginApp(OrderPdfGeneration::class);
-                    $orderPdfGenerationModel->advice = $paymentHelper->getTranslatedText('novalnetDetails'). PHP_EOL . $transactionComments;
-                    if ($event->getDocType() == Document::INVOICE) {
-                        $event->addOrderPdfGeneration($orderPdfGenerationModel); 
-                    }
-                }
-            } catch (\Exception $e) {
-                        $this->getLogger(__METHOD__)->error('Adding transaction comments on invoice PDF is failed for an order' . $order->id , $e);
-            } 
+        $payments = $paymentRepository->getPaymentsByOrderId($order->id);
+        foreach ($payments as $payment)
+        {
+            $properties = $payment->properties;
+            foreach($properties as $property)
+            {
+		    if($property->typeId == 30)
+		    {
+		    $tid_status = $property->value;
+		    }
+            }
         }
-        });
-        
+        $paymentKey = $paymentHelper->getPaymentKeyByMop($payments[0]->mopId);
+        $db_details = $paymentService->getDatabaseValues($order->id);
+        $get_transaction_details = $transactionLogData->getTransactionData('orderNo', $order->id);
+	    $totalCallbackAmount = 0;
+	    foreach ($get_transaction_details as $transaction_details) {
+	       $totalCallbackAmount += $transaction_details->callbackAmount;
+	    }
+        if (in_array($paymentKey, ['NOVALNET_INVOICE', 'NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_PAYPAL']) && !empty($db_details['plugin_version'])
+        ) {
+             
+        try {
+                $comments = '';
+                $comments .= PHP_EOL . $paymentHelper->getTranslatedText('nn_tid') . $db_details['tid'];
+                if(!empty($db_details['test_mode'])) {
+                    $comments .= PHP_EOL . $paymentHelper->getTranslatedText('test_order');
+                }
+                 if(in_array($tid_status, [91, 100]) && ($db_details['payment_id'] == 27 && ($transaction_details->amount > $totalCallbackAmount) ) ) {
+                $comments .= PHP_EOL . $paymentService->getInvoicePrepaymentComments($db_details);
+                
+                }
+                
+                $orderPdfGenerationModel = pluginApp(OrderPdfGeneration::class);
+                $orderPdfGenerationModel->advice = $paymentHelper->getTranslatedText('novalnet_details'). PHP_EOL . $comments;
+                if ($event->getDocType() == Document::INVOICE) {
+                    $event->addOrderPdfGeneration($orderPdfGenerationModel); 
+                }
+        } catch (\Exception $e) {
+                    $this->getLogger(__METHOD__)->error('Adding PDF comment failed for order' . $order->id , $e);
+        } 
+        }
+        } 
+      );  
     }
 }
