@@ -23,7 +23,6 @@ use Novalnet\Services\PaymentService;
 use Plenty\Modules\Basket\Models\Basket;
 use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 
-
 /**
  * Class NovalnetInstalmentbyInvoicePaymentMethod
  * @package Novalnet\Methods
@@ -51,9 +50,9 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
     private $basket;
 
     /**
-     * NovalnetPaymentMethod constructor.
+     * NovalnetInstalmentbyInvoicePaymentMethod constructor.
      *
-     * @param ConfigRepository $configRepository
+     * @param ConfigRepository $config
      * @param PaymentHelper $paymentHelper
      * @param PaymentService $paymentService
      * @param BasketRepositoryContract $basket
@@ -71,35 +70,22 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
 
     /**
      * Check the configuration if the payment method is active
-     * Return true only if the payment method is active
      *
      * @return bool
      */
     public function isActive():bool
     {
-       if ($this->config->get('Novalnet.novalnet_instalment_invoice_payment_active') == 'true') {
+		if ($this->config->get('Novalnet.novalnet_instalment_invoice_payment_active') == 'true') {
+			$instalmentPaymentMimimumAmount = true;
+			$minimumAmount = trim($this->config->get('Novalnet.novalnet_instalment_invoice_min_amount'));
+			if (!empty($minimumAmount) && is_numeric($minimumAmount) && $minimumAmount < 1998) {
+				$instalmentPaymentMimimumAmount = false;
+			}
+			$paymentConditionValidation = $this->paymentService->checkPaymentDisplayConditions($this->basket, 'novalnet_instalment_invoice');
 
-        $active_payment_allowed_country = 'true';
-        if ($allowed_country = $this->config->get('Novalnet.novalnet_instalment_invoice_allowed_country')) {
-        $active_payment_allowed_country  = $this->paymentService->allowedCountries($this->basket, $allowed_country);
-        }
-
-        $active_payment_minimum_amount = 'true';
-        $minimum_amount = trim($this->config->get('Novalnet.novalnet_instalment_invoice_minimum_order_amount'));
-        if (!empty($minimum_amount) && is_numeric($minimum_amount)) {
-        $active_payment_minimum_amount = $this->paymentService->getMinBasketAmount($this->basket, $minimum_amount);
-        }
-
-        $active_payment_maximum_amount = 'true';
-        $maximum_amount = trim($this->config->get('Novalnet.novalnet_instalment_invoice_maximum_order_amount'));
-        if (!empty($maximum_amount) && is_numeric($maximum_amount)) {
-        $active_payment_maximum_amount = $this->paymentService->getMaxBasketAmount($this->basket, $maximum_amount);
-        }
-
-        return (bool)($this->paymentHelper->paymentActive() && $active_payment_allowed_country && $active_payment_minimum_amount && $active_payment_maximum_amount);
+			return (bool)($this->paymentHelper->isPaymentActive('novalnet_instalment_invoice') && $instalmentPaymentMimimumAmount && $paymentConditionValidation);
         }
         return false;
-
     }
 
     /**
@@ -109,8 +95,8 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
      */
     public function getName(string $lang = 'de'):string
     {
-        $name = trim($this->config->get('Novalnet.novalnet_instalment_invoice_payment_name'));
-        return ($name ? $name : $this->paymentHelper->getTranslatedText('novalnet_instalment_invoice'));
+        $paymentName = trim($this->config->get('Novalnet.novalnet_instalment_invoice_payment_name'));
+        return ($paymentName ? $paymentName : $this->paymentHelper->getTranslatedText('novalnet_instalment_invoice'));
     }
 
     /**
@@ -120,7 +106,7 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
      */
     public function getFee(): float
     {
-        return 0.;
+        return 0.00;
     }
 
     /**
@@ -138,7 +124,6 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
             $logoUrl = $app->getUrlPath('novalnet') .'/images/novalnet_invoice.png';
         }
         return $logoUrl;
-
     }
 
     /**
@@ -149,7 +134,7 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
     public function getDescription(string $lang = 'de'):string
     {
        $description = trim($this->config->get('Novalnet.novalnet_invoice_description'));
-        	return ($description ? $description : $this->paymentHelper->getTranslatedText('invoice_prepayment_payment_description'));
+       return ($description ? $description : $this->paymentHelper->getTranslatedText('invoice_prepayment_payment_description'));
     }
 
     /**
@@ -218,7 +203,8 @@ class NovalnetInstalmentbyInvoicePaymentMethod extends PaymentMethodBaseService
      *
      * @return string
      */
-     public function getBackendIcon():string {
+    public function getBackendIcon():string 
+    {
         /** @var Application $app */
         $app = pluginApp(Application::class);
         $logoUrl = $app->getUrlPath('novalnet') .'/images/logos/novalnet_invoice_backend_icon.svg';
