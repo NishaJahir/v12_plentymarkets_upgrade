@@ -348,7 +348,10 @@ class PaymentHelper
             }
         }
     }
-
+public function paymentActive() {
+    return true;
+}
+    
     /**
     * Check the payment activate conditions
     * 
