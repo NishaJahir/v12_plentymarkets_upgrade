@@ -30,13 +30,13 @@ class NovalnetOrderConfirmationDataProvider
      *
      * @param Arguments $arg
      */
-    public function call(Twig $twig, $arg)
-    {
-        $paymentService = pluginApp(PaymentService::class);
-        $order = $arg[0];
-        if (!empty ($order['id'])) {
-            $transactionCommentVal = $paymentService->getTransactionCommentVal($order['id']);
-            return $twig->render('Novalnet::NovalnetOrderHistory', ['bankDetails' => $transactionCommentVal['bankDetails'], 'transactionDetails' => $transactionCommentVal['transactionDetails']]);
-        }
-    }
+   // public function call(Twig $twig, $arg)
+  //  {
+        //$paymentService = pluginApp(PaymentService::class);
+        //$order = $arg[0];
+      //  if (!empty ($order['id'])) {
+          //  $transactionCommentVal = $paymentService->getTransactionCommentVal($order['id']);
+         //   return $twig->render('Novalnet::NovalnetOrderHistory', ['bankDetails' => $transactionCommentVal['bankDetails'], 'transactionDetails' => $transactionCommentVal['transactionDetails']]);
+       // }
+   // }
 }
