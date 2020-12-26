@@ -594,7 +594,7 @@ class PaymentHelper
             $maximumOrderAmount = $this->paymentService->getMaxBasketAmount($this->basket, $maxOrderAmount);
         }
 
-        if (!empty(trim($this->config->get('Novalnet.novalnet_public_key'))) && is_numeric(trim($this->config->get('Novalnet.novalnet_tariff_id'))) && !empty(trim($this->config->get('Novalnet.novalnet_access_key'))) && $paymentAllowedCountry && $minimumOrderAmount && $maximumOrderAmount)
+       if (!empty($this->getNovalnetConfig('novalnet_public_key')) && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('Novalnet.novalnet_access_key')) && $paymentAllowedCountry && $minimumOrderAmount && $maximumOrderAmount)
         {
             $paymentDisplay = true;
         }
