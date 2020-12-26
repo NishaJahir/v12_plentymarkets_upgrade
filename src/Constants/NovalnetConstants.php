@@ -22,4 +22,6 @@ class NovalnetConstants
 {
     const PLUGIN_VERSION = '7.0.0-NN(12.0.0)';
     const PAYMENT_URL    = 'https://payport.novalnet.de/v2/payment';
+    const TX_DETAILS_UPDATE_URL = 'https://payport.novalnet.de/v2/transaction/details';
+    const PAYMENT_AUTHORIZE_URL = 'https://payport.novalnet.de/v2/authorize';
 }
