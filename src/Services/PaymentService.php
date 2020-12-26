@@ -997,5 +997,33 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
         }
         return false;
     }
+	
+	/**
+    * Check if the customer from EU country or not
+    *
+    * @param string $paymentKey
+    * @param string $countryCode
+    * 
+    * @return bool
+    */
+    public function EuropeanUnionCountryValidation($paymentKey, $countryCode) 
+    {
+        $allowB2B = $this->config->get('Novalnet.' . $paymentKey . '_allow_b2b_customer');
+        $europeanUnionCountryCodes =  [
+            'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
+            'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL',
+            'PT', 'RO', 'SE', 'SI', 'SK', 'UK', 'CH'
+        ];
+        if(in_array($countryCode, ['DE', 'AT', 'CH'])) {
+            $countryValidation = true;
+        } elseif($allowB2B == true && in_array($countryCode, $europeanUnionCountryCodes)) {
+            $countryValidation = true;
+        } else {
+            $countryValidation = false;
+        }
+        return $countryValidation;
+    }
+	
+	
     
 }
