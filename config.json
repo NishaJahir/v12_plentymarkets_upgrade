@@ -42,28 +42,6 @@
             }
          }
       },
-      "Config.NovalnetMerchantScriptManagementTab":{
-         "label":"Config.NovalnetMerchantScriptManagementTab",
-         "formFields":{
-            "novalnet_callback_test_mode":{
-               "type":"checkBox",
-               "required":false,
-               "label":"Config.callbackTestModeLabel",
-               "options":{
-                  "defaultValue":false
-               }
-            },
-            "novalnet_email_to":{
-               "type":"inputText",
-               "required":false,
-               "label":"Config.emailToLabel",
-               "options":{
-                  "tooltip":"Config.emailToTooltip",
-                  "defaultValue":""
-               }
-            }
-         }
-      },
       "Config.NovalnetCreditCardTab":{
          "label":"Config.NovalnetCreditCardTab",
          "formFields":{
@@ -80,7 +58,6 @@
                "required":false,
                "label":"Config.testModeLabel",
                "options":{
-                  "tooltip":"Config.ccTestModeTooltip",
                   "defaultValue":false
                }
             },
@@ -89,7 +66,6 @@
                "required":false,
                "label":"Config.inlineFormLabel",
                "options":{
-                  "tooltip":"Config.inlineFormTooltip",
                   "defaultValue":true
                }
             },
@@ -115,14 +91,6 @@
                "label":"Config.paymentLogoLabel",
                "options":{
                   "defaultValue":"images/novalnet_cc.png"
-               }
-            },
-            "novalnet_cc_3d_fraudcheck":{
-               "type":"checkBox",
-               "required":false,
-               "label":"Config.cc3dFraudcheckLabel",
-               "options":{
-                  "defaultValue":false
                }
             },
             "novalnet_cc_shopping_type":{
