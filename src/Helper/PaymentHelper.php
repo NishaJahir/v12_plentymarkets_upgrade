@@ -31,6 +31,9 @@ use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Novalnet\Constants\NovalnetConstants;
 use Novalnet\Services\TransactionService;
+use Plenty\Modules\Basket\Models\Basket;
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+use Novalnet\Services\PaymentService;
 
 /**
  * Class PaymentHelper
@@ -89,6 +92,15 @@ class PaymentHelper
     */
     private $sessionStorage;
       
+    /**
+     * @var Basket
+     */
+    private $basket;
+    
+    /**
+     * @var PaymentService
+     */
+    private $paymentService;
     
     /**
      * @var transaction
@@ -116,6 +128,8 @@ class PaymentHelper
                                 ConfigRepository $configRepository,
                                 FrontendSessionStorageFactoryContract $sessionStorage,
                                 TransactionService $tranactionService,
+                                PaymentService $paymentService,
+                                BasketRepositoryContract $basket,
                                 CountryRepositoryContract $countryRepository
                               )
     {
@@ -126,8 +140,10 @@ class PaymentHelper
         $this->orderComment                   = $orderComment;      
         $this->config                         = $configRepository;
         $this->sessionStorage                 = $sessionStorage;
+         $this->paymentService                 = $paymentService;
         $this->transaction                    = $tranactionService;
         $this->countryRepository              = $countryRepository;
+        $this->basket                         = $basket->load();
     }
 
     /**
