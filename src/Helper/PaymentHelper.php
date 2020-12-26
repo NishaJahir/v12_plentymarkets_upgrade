@@ -30,10 +30,6 @@ use Plenty\Modules\Comment\Contracts\CommentRepositoryContract;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Novalnet\Constants\NovalnetConstants;
-use Novalnet\Services\PaymentService;
-use Novalnet\Services\TransactionService;
-use Plenty\Modules\Basket\Models\Basket;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
 
 /**
  * Class PaymentHelper
@@ -91,20 +87,7 @@ class PaymentHelper
     */
     private $sessionStorage;
       
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
-    
-    /**
-     * @var transaction
-     */
-    private $transaction;
-    
-    /**
-     * @var Basket
-     */
-    private $basket;
+ 
 
     /**
      * PaymentHelper Constructor.
@@ -116,10 +99,8 @@ class PaymentHelper
      * @param CommentRepositoryContract $orderComment
      * @param ConfigRepository $configRepository
      * @param FrontendSessionStorageFactoryContract $sessionStorage
-     * @param PaymentService $paymentService
-     * @param TransactionService $tranactionService
      * @param CountryRepositoryContract $countryRepository
-     * @param BasketRepositoryContract $basket
+
      */
     public function __construct(PaymentMethodRepositoryContract $paymentMethodRepository,
                                 PaymentRepositoryContract $paymentRepository,
@@ -128,10 +109,7 @@ class PaymentHelper
                                 CommentRepositoryContract $orderComment,
                                 ConfigRepository $configRepository,
                                 FrontendSessionStorageFactoryContract $sessionStorage,
-                                PaymentService $paymentService,
-                                TransactionService $tranactionService,
-                                CountryRepositoryContract $countryRepository,
-                                BasketRepositoryContract $basket
+                                CountryRepositoryContract $countryRepository
                               )
     {
         $this->paymentMethodRepository        = $paymentMethodRepository;
@@ -141,10 +119,7 @@ class PaymentHelper
         $this->orderComment                   = $orderComment;      
         $this->config                         = $configRepository;
         $this->sessionStorage                 = $sessionStorage;
-        $this->paymentService                 = $paymentService;
-        $this->transaction                    = $tranactionService;
         $this->countryRepository              = $countryRepository;
-        $this->basket                         = $basket->load();
     }
 
     /**
@@ -348,46 +323,13 @@ class PaymentHelper
             }
         }
     }
+    
+    
 public function paymentActive() {
     return true;
 }
     
-    /**
-    * Check the payment activate conditions
-    * 
-    * @param string $paymentKey
-    * return bool
-    */
-    public function isPaymentActive($paymentKey) 
-    {
-        $paymentDisplay = false;
-        
-        // Allowed country check
-        $paymentAllowedCountry = 'true';
-        if ($allowedCountry = $this->config->get('Novalnet.' . $paymentKey . '_allowed_country')) {
-            $paymentAllowedCountry  = $this->paymentService->allowedCountries($this->basket, $allowedCountry);
-        }
-
-        // Minimum order amount check
-        $minimumOrderAmount = 'true';
-        $minOrderAmount = trim($this->config->get('Novalnet.' . $paymentKey . '_minimum_order_amount'));
-        if (!empty($minOrderAmount) && is_numeric($minOrderAmount)) {
-            $minimumOrderAmount = $this->paymentService->getMinBasketAmount($this->basket, $minOrderAmount);
-        }
-
-        // Maximum order amount check
-        $maximumOrderAmount = 'true';
-        $maxOrderAmount = trim($this->config->get('Novalnet.' . $paymentKey . '_maximum_order_amount'));
-        if (!empty($maxOrderAmount) && is_numeric($maxOrderAmount)) {
-            $maximumOrderAmount = $this->paymentService->getMaxBasketAmount($this->basket, $maxOrderAmount);
-        }
-
-        if (!empty(trim($this->config->get('Novalnet.novalnet_public_key'))) && is_numeric(trim($this->config->get('Novalnet.novalnet_tariff_id'))) && !empty(trim($this->config->get('Novalnet.novalnet_access_key'))) && $paymentAllowedCountry && $minimumOrderAmount && $maximumOrderAmount)
-        {
-            $paymentDisplay = true;
-        }
-        return $paymentDisplay;
-    }
+    
     
     /**
     * Due date calculation and change the date format as YYYY-MM-DD
