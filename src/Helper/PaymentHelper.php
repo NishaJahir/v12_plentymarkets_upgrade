@@ -31,9 +31,6 @@ use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Novalnet\Constants\NovalnetConstants;
 use Novalnet\Services\TransactionService;
-use Plenty\Modules\Basket\Models\Basket;
-use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
-use Novalnet\Services\PaymentService;
 
 /**
  * Class PaymentHelper
@@ -92,15 +89,6 @@ class PaymentHelper
     */
     private $sessionStorage;
       
-    /**
-     * @var Basket
-     */
-    private $basket;
-    
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
     
     /**
      * @var transaction
@@ -128,8 +116,6 @@ class PaymentHelper
                                 ConfigRepository $configRepository,
                                 FrontendSessionStorageFactoryContract $sessionStorage,
                                 TransactionService $tranactionService,
-                                PaymentService $paymentService,
-                                BasketRepositoryContract $basket,
                                 CountryRepositoryContract $countryRepository
                               )
     {
@@ -140,10 +126,8 @@ class PaymentHelper
         $this->orderComment                   = $orderComment;      
         $this->config                         = $configRepository;
         $this->sessionStorage                 = $sessionStorage;
-         $this->paymentService                 = $paymentService;
         $this->transaction                    = $tranactionService;
         $this->countryRepository              = $countryRepository;
-        $this->basket                         = $basket->load();
     }
 
     /**
@@ -212,7 +196,7 @@ class PaymentHelper
         $payment->transactionType = Payment::TRANSACTION_TYPE_BOOKED_POSTING;
         $payment->status          = ($requestData['transaction']['status'] == 'FAILURE' ? Payment::STATUS_CANCELED : (in_array($requestData['transaction']['status'], ['PENDING', 'ON_HOLD']) ? Payment::STATUS_APPROVED : Payment::STATUS_CAPTURED));
         $payment->currency        = $requestData['transaction']['currency'];
-        $payment->amount          = (in_array($requestData['transaction']['status'], ['PENDING', 'ON_HOLD', 'FAILURE']) ? 0 : $requestData['transaction']['amount']);
+        $payment->amount          = (in_array($requestData['transaction']['status'], ['PENDING', 'ON_HOLD', 'FAILURE']) ? 0 : ( $requestData['transaction']['amount'] / 100 ) );
         if(isset($requestData['booking_text']) && !empty($requestData['booking_text'])) {
         $bookingText = $requestData['booking_text'];
         } else {
@@ -565,36 +549,14 @@ class PaymentHelper
     }
 
     /**
-    * Check the payment activate conditions
-    * 
-    * @param string $paymentKey
+    * Check the payment activate params
+    *
     * return bool
     */
-    public function isPaymentActive($paymentKey) 
+    public function paymentActive()
     {
         $paymentDisplay = false;
-        
-        // Allowed country check
-        $paymentAllowedCountry = 'true';
-        if ($allowedCountry = $this->config->get('Novalnet.' . $paymentKey . '_allowed_country')) {
-            $paymentAllowedCountry  = $this->paymentService->allowedCountries($this->basket, $allowedCountry);
-        }
-
-        // Minimum order amount check
-        $minimumOrderAmount = 'true';
-        $minOrderAmount = trim($this->config->get('Novalnet.' . $paymentKey . '_minimum_order_amount'));
-        if (!empty($minOrderAmount) && is_numeric($minOrderAmount)) {
-            $minimumOrderAmount = $this->paymentService->getMinBasketAmount($this->basket, $minOrderAmount);
-        }
-
-        // Maximum order amount check
-        $maximumOrderAmount = 'true';
-        $maxOrderAmount = trim($this->config->get('Novalnet.' . $paymentKey . '_maximum_order_amount'));
-        if (!empty($maxOrderAmount) && is_numeric($maxOrderAmount)) {
-            $maximumOrderAmount = $this->paymentService->getMaxBasketAmount($this->basket, $maxOrderAmount);
-        }
-
-       if (!empty($this->getNovalnetConfig('novalnet_public_key')) && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('Novalnet.novalnet_access_key')) && $paymentAllowedCountry && $minimumOrderAmount && $maximumOrderAmount)
+        if (!empty($this->getNovalnetConfig('novalnet_public_key')) && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('novalnet_access_key')))
         {
             $paymentDisplay = true;
         }

@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="{{plugin_path('Novalnet')}}/css/novalnetUi.css">
-<script defer src="{{plugin_path('Novalnet')}}/js/novalnetBirthdayValidation.js"></script>
+<script type="text/javascript" src="https://cdn.novalnet.de/js/v2/NovalnetUtility.js"></script>
 <script src="{{ plugin_path('Novalnet') }}/js/novalnetPaymentForm.js"></script>
 
 <input type="hidden" id="nnCcStandardStyleLabel" value="{{nnFormDesign['standardStyleLabel']}}" />
@@ -8,9 +8,11 @@
 
 <form method="post" id="novalnetForm" name="novalnetForm" action="{{nnPaymentProcessUrl}}">
     <input type="hidden" id="paymentKey" name="paymentKey" value="{{paymentMopKey}}" />
+    <input type="hidden" name="removalProcessUrl" id="removalProcessUrl" value="{{removalProcessUrl}}">
+    <input type="hidden" name="removedCardDetail" id="removedCardDetail" value="{{removedCardDetail}}">
     
     <div class="modal-header">
-		<h4 class="modal-title">{{paymentName}}</h4>
+       <h4 class="modal-title">{{paymentName}}</h4>
         <button type="button" aria-label="Close" data-dismiss="modal" class="close" onClick="window.location.reload();">
             <span aria-hidden="true">x</span>
         </button> 
@@ -24,27 +26,46 @@
 				<input type="hidden" id="nnDobMonth" name="nnDobMonth" value="{{trans("Novalnet::PaymentMethod.monthOption")}}">
 				
         {% if paymentMopKey == "NOVALNET_SEPA" %}
-			<div class="row">
-				<div class="col-xs-12">
-					<div class="row">
-						<div class="col-xs-12 col-sm-12">
-							<div data-model="nn_invoice_birthday" class="input-unit">
-								<input type="text" name="nnSepaCardholder" value="{{endcustomername}}" id="nnSepaCardholder"> 
-								<label for="sepaHolder">{{trans("Novalnet::PaymentMethod.sepa_account_holder_label")}}*</label>
-							</div>
-							<div data-model="nn_sepa_birthday" class="input-unit">
-								<input type="text" name="nnSepaIban" autocomplete="off" id="nnSepaIban">
-								<label for="sepaIban">{{trans("Novalnet::PaymentMethod.sepa_iban_label")}}*</label>
-							</div>
-							<a href="#ibanDetails" data-toggle="collapse">{{trans("Novalnet::PaymentMethod.ibanMandate")}}</a>
-							<div id="ibanDetails" class="collapse card-body" style="background:whitesmoke;padding:3%;">
-							<div>{{trans("Novalnet::PaymentMethod.ibanDesc")}}</div><br>
-							<div><b>{{trans("Novalnet::PaymentMethod.creditorIdentifier")}} </div></b><br>
-							<div><b>{{trans("Novalnet::PaymentMethod.note")}}</b> {{trans("Novalnet::PaymentMethod.noteDesc")}}</div></div><br>
-						</div>
-					</div> 
+		
+	<div class="row">
+	<div class="col-xs-12 col-sm-12">
+		{% if paymentDetails is not empty and oneClickShopping is not empty %}
+		{% for paymentDetail in paymentDetails %}  
+			<div class="row" id="remove_{{paymentDetail.saveOneTimeToken}}">
+				<div class="col-xs-12 col-sm-12">
+					<input type="radio" name="radioOption" id="maskingDetails">
+					<input type="hidden" name="novalnetsepaSelectedToken" value="{{paymentDetail.saveOneTimeToken}}">
+					<span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{paymentDetail.iban}}</span>
+					<button type="button" class="btn btn-danger btnDelete"  onclick="removeCardDetails('{{paymentDetail.saveOneTimeToken}}')" value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
 				</div>
 			</div>
+		{% endfor %}
+			 <input type="radio" name="radioOption" id="toggleForm"> {{trans("Novalnet::PaymentMethod.addNewAccountDetails")}}
+			 <input type="hidden" name="newForm" id="newForm">
+		{% endif %}
+
+		<div class="row newCardDetails">
+			<div class="col-xs-12 col-sm-12">
+				{%if oneClickShopping is not empty %}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:10px;height:10px;"><path style="fill:#0080c9;" d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path></svg>
+					<span class="saveCardText">{{trans("Novalnet::PaymentMethod.SaveAccountData")}}</span>
+				{% endif %}
+			</div>
+
+			<div class="col-xs-12 col-sm-12">
+				<div data-model="nn_sepa_iban" class="input-unit">
+					<input type="text" name="nnSepaIban" autocomplete="off" id="nnSepaIban">
+					<label for="sepaIban">{{trans("Novalnet::PaymentMethod.sepa_iban_label")}}*</label>
+				</div>
+				<a href="#ibanDetails" data-toggle="collapse">{{trans("Novalnet::PaymentMethod.ibanMandate")}}</a>
+				<div id="ibanDetails" class="collapse card-body" style="background:whitesmoke;padding:3%;">
+				<div>{{trans("Novalnet::PaymentMethod.ibanDesc")}}</div><br>
+				<div><b>{{trans("Novalnet::PaymentMethod.creditorIdentifier")}} </div></b><br>
+				<div><b>{{trans("Novalnet::PaymentMethod.note")}}</b> {{trans("Novalnet::PaymentMethod.noteDesc")}}</div></div><br>
+			</div>
+		</div>
+	</div>
+</div>
 			
 		 {% elseif paymentMopKey == "NOVALNET_INSTALMENT_INVOICE" %}
 			<div class="row">
@@ -68,15 +89,15 @@
 				<div><b><label for="nnInstalment" style="color:#008ebd;">{{trans("Novalnet::PaymentMethod.instalment_plan_label")}}</label></b></div>
 				<div>{{trans("Novalnet::PaymentMethod.instalment_plan_desc")}}</div>
 				<div class="row">
-					<div class="col-sm-3 form-control" id="nnInstalmentAmount" name="nnInstalmentAmount"><b>{{trans("Novalnet::PaymentMethod.loan_amount_text")}} {{instalmentNetAmount}} {{orderCurrency}}</b></div>
+					<div class="col-sm-4 form-control" id="nnInstalmentAmount" name="nnInstalmentAmount"><b>{{trans("Novalnet::PaymentMethod.loan_amount_text")}} {{instalmentNetAmount}} {{orderCurrency}}</b></div>
 					{% if instalmentCycles is not empty %}
 					<div class="col-sm-5">
 						<select id="nnInstalmentCycle" type="text" name="nnInstalmentCycle" placeholder="{{trans("Novalnet::PaymentMethod.instalment_plan_label")}}" class="form-control">
 							 <option value="0">{{trans("Novalnet::PaymentMethod.instalment_plan_label")}}</option>
 							{% for instalmentCycle in instalmentCycles %}
 							{% set instalmentCycleAmount = ( instalmentNetAmount / instalmentCycle) | round(2, 'floor') %}
-							{% if instalmentCycleAmount > 9.99 %}
-					<option value="{{instalmentCycle}}">{{ trans("Novalnet::PaymentMethod.instalmentCycle#{instalmentCycle}") }} / {{instalmentCycleAmount}} {{orderCurrency}} {{ trans("Novalnet::PaymentMethod.recurringPeriodEveryMonths#{recurringPeriod}") }}</option>
+							{% if instalmentCycleAmount > 19.98 %}
+					<option value="{{instalmentCycle}}">{{ trans("Novalnet::PaymentMethod.instalmentCycle#{instalmentCycle}") }} / {{instalmentCycleAmount}} {{orderCurrency}} {{ trans("Novalnet::PaymentMethod.recurringPeriodEveryMonth") }}</option>
 							{% endif %}
 							{% endfor %}
 						</select>
@@ -85,12 +106,44 @@
 				</div>
 				
 		 {% elseif paymentMopKey == "NOVALNET_CC" %}
-			<input type="hidden" id="nnPanHash" name="nnPanHash" />
-			<input type="hidden" id="nnUniqueId" name="nnUniqueId" />
-			<div class="modal-body form-horizontal">
+			<input type="hidden" id="nnCcPanHash" name="nnCcPanHash" />
+			<input type="hidden" id="nnCcUniqueId" name="nnCcUniqueId" />
+			<input type="hidden" id="nnCc3dRedirect" name="nnCc3dRedirect" />
+			<input type="hidden" id="nnCcFormFields" name="nnCcFormFields" value="{{ccCustomFields|escape}}" />
+            		<input type="hidden" id="nnCcFormDetails" name="nnCcFormDetails" value="{{ccFormDetails|escape}}" />
+			
+			<div class="row">
+	<div class="col-xs-12 col-sm-12">
+		{% if paymentDetails is not empty and oneClickShopping is not empty %}
+		{% for paymentDetail in paymentDetails %}  
+			<div class="row" id="remove_{{paymentDetail.saveOneTimeToken}}">
+				<div class="col-xs-12 col-sm-12">
+					<input type="radio" name="radioOption" id="maskingDetails">
+					<input type="hidden" name="novalnetccSelectedToken" value="{{paymentDetail.saveOneTimeToken}}">
+					<span>{{trans("Novalnet::PaymentMethod.sepa_iban_label")}} {{paymentDetail.iban}}</span>
+					<button type="button" class="btn btn-danger btnDelete"  onclick="removeCardDetails('{{paymentDetail.saveOneTimeToken}}')" value="{{paymentDetail.saveOneTimeToken}}"><span class="fa fa-trash-o"></span></button>
+				</div>
+			</div>
+		{% endfor %}
+			 <input type="radio" name="radioOption" id="toggleForm"> {{trans("Novalnet::PaymentMethod.addNewCardDetails")}}
+			 <input type="hidden" name="newForm" id="newForm">
+		{% endif %}
+			
+			<div class="row newCardDetails">
+			<div class="col-xs-12 col-sm-12">
+				{%if oneClickShopping is not empty %}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:10px;height:10px;"><path style="fill:#0080c9;" d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path></svg>
+					<span class="saveCardText">{{trans("Novalnet::PaymentMethod.SaveAccountData")}}</span>
+				{% endif %}
+			</div>
+			
+			<div class="col-xs-12 col-sm-12 form-horizontal">
 				<div class="row">
-					<iframe id="nnIframe" src="{{nnCcFormUrl}}" frameborder="0" onload="initIframe()" scrolling="no" width="100%"></iframe>
+					<iframe id="nnIframe" frameborder="0" scrolling="no" width="100%"></iframe>
 				</div> 
+			</div>
+			</div>
+			</div>
 			</div>
 		 {% endif %}
 	</fieldset>
@@ -98,7 +151,7 @@
 
 <div class="modal-footer">
 	{% if paymentMopKey == "NOVALNET_CC"  %}
-		<button type="submit" class="btn btn-primary" id="novalnetFormBtn" onclick="getHash(event)">
+		<button type="submit" class="btn btn-primary" id="novalnetFormBtn" onclick="">
 			<i class="fa fa-check" aria-hidden="true"> </i>
 			{{ trans("Novalnet::PaymentMethod.submit_button_text") }}
 		</button>

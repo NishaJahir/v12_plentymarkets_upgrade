@@ -42,7 +42,6 @@ use Novalnet\Models\TransactionLog;
 use Plenty\Modules\Document\Models\Document;
 use Novalnet\Constants\NovalnetConstants;
 
-
 use Novalnet\Methods\NovalnetCcPaymentMethod;
 use Novalnet\Methods\NovalnetSepaPaymentMethod;
 use Novalnet\Methods\NovalnetInvoicePaymentMethod;
@@ -54,7 +53,6 @@ use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 
 /**
  * Class NovalnetServiceProvider
- *
  * @package Novalnet\Providers
  */
 class NovalnetServiceProvider extends ServiceProvider
@@ -98,7 +96,6 @@ class NovalnetServiceProvider extends ServiceProvider
                           DataBase $dataBase,
                           EventProceduresService $eventProceduresService)
     {
-
         // Register the Novalnet payment methods in the payment method container
         $payContainer->register('plenty_novalnet::NOVALNET_CC', NovalnetCcPaymentMethod::class,
             [
@@ -131,72 +128,69 @@ class NovalnetServiceProvider extends ServiceProvider
                 AfterBasketCreate::class
             ]);
         
-        
-        
         // Listen for the event that gets the payment method content
         $eventDispatcher->listen(GetPaymentMethodContent::class,
-                function(GetPaymentMethodContent $event) use($config, $paymentHelper, $addressRepository, $paymentService, $basketRepository, $sessionStorage, $twig)
+                function(GetPaymentMethodContent $event) use($config, $paymentHelper, $addressRepository, $paymentService, $basketRepository, $sessionStorage, $twig, $dataBase)
                 {
-        
                     if($paymentHelper->getPaymentKeyByMop($event->getMop()))
                     {   
                         $paymentKey = $paymentHelper->getPaymentKeyByMop($event->getMop());
-                        $basket = $basketRepository->load();			
-						$billingAddressId = $basket->customerInvoiceAddressId;
-						$address = $addressRepository->findAddressById($billingAddressId);
-                        $name = trim($config->get('Novalnet.' . strtolower($paymentKey) . '_payment_name'));
+                        $basket = $basketRepository->load();
+			$name = trim($config->get('Novalnet.' . strtolower($paymentKey) . '_payment_name'));
                         $paymentName = ($name ? $name : $paymentHelper->getTranslatedText(strtolower($paymentKey)));
-                        $redirect = $paymentService->isRedirectPayment($paymentKey);    
-                            
-                        if ($redirect && $paymentKey != 'NOVALNET_CC') { # Redirection payments
-                            $serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);
-                           if (empty($serverRequestData['data']['first_name']) && empty($serverRequestData['data']['last_name'])) {
+                        // Get the payment request data
+                        $serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);			
+						if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
                             $content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
                             $contentType = 'errorCode';   
-                           } else {
-                                 $sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData['data']);
-                                        $sessionStorage->getPlugin()->setValue('nnPaymentUrl', $serverRequestData['url']);
-                                        $content = '';
-                                        $contentType = 'continue';
-                           }
-                        } 
-			     elseif(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
-				$encodedKey = base64_encode('vendor='.$paymentHelper->getNovalnetConfig('novalnet_vendor_id').'&product='.$paymentHelper->getNovalnetConfig('novalnet_product_id').'&server_ip='.$paymentHelper->getServerAddress().'&lang='.$sessionStorage->getLocaleSettings()->language);
-			    	$endUserName = $address->firstName .' '. $address->lastName;
-				$endCustomerName = $paymentService->getCustomerName($address);		
-				     
-							$content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
-								'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
+                        } else {
+				if(in_array($paymentKey, ['NOVALNET_CC', 'NOVALNET_SEPA', 'NOVALNET_INSTALMENT_INVOICE'])) {
+					 $billingAddressId = $basket->customerInvoiceAddressId;
+        $billingAddress = $addressRepository->findAddressById($billingAddressId);
+					$paymentDetails = $dataBase->query(TransactionLog::class)->where('paymentName', '=', strtolower($paymentKey))->where('customerEmail', '=', $billingAddress->email)->where('saveOneTimeToken', '!=', "")->whereNull('maskingDetails', 'and', true)->orderBy('id','DESC')->limit(2)->get();
+					//$paymentDetails = $dataBase->query(TransactionLog::class)->where([['paymentName', '=', strtolower($paymentKey)],['customerEmail', '=', $billingAddress->email]])->whereNull([['maskingDetails', 'and', false], ['saveOneTimeToken', 'and', false]])->orderBy('id','DESC')->limit(2)->get();
+					$this->getLogger(__METHOD__)->error('db get new chnaged', $paymentDetails);
+					$paymentDetails = json_decode(json_encode($paymentDetails), true);
+					foreach($paymentDetails as $key => $paymentDetail) {
+						$paymentDetails[$key]['iban'] = json_decode($paymentDetail['maskingDetails'])->iban;
+					}
+					//$jsonValue = ($paymentData['maskingDetails'],true);
+					$this->getLogger(__METHOD__)->error('db temp', $paymentDetails);
+					$paymentDetails = json_decode(json_encode($paymentDetails));
+					$this->getLogger(__METHOD__)->error('db object', $paymentDetails);
+
+					if($paymentKey == 'NOVALNET_CC') {
+								$ccFormDetails = $paymentService->getCcFormData($basket, $paymentKey);
+						$ccCustomFields = $paymentService->getCcFormFields();
+							        }
+				   $content = $twig->render('Novalnet::PaymentForm.NovalnetPaymentForm', [
+					   			'nnPaymentProcessUrl' => $paymentService->getProcessPaymentUrl(),
 								'paymentMopKey'       =>  $paymentKey,
 								'paymentName' 		  => $paymentName,
-								'nnCcFormUrl'           => 'https://secure.novalnet.de/cc?api=' . $encodedKey,
-								'nnFormDesign'          =>  $paymentService->getCcDesignConfig(),
-								'endcustomername'     => empty(trim($endUserName)) ? $endCustomerName['firstName'] .' '. $endCustomerName['lastName'] : $endUserName,
-								'instalmentNetAmount'  => $basket->basketAmount,
+					                        'ccFormDetails'       => !empty($ccFormDetails)? $ccFormDetails : '',
+					   			'ccCustomFields'       => !empty($ccCustomFields)? $ccCustomFields : '',
+					   			'oneClickShopping'   => (int) ($config->get('Novalnet.' . strtolower($paymentKey) . '_shopping_type') == true),
+					                        'instalmentNetAmount'  => $basket->basketAmount,
 								'orderCurrency' => $basket->currency,
-								'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
+					                         'paymentDetails' => $paymentDetails,
+					                         'removedCardDetail' => $paymentHelper->getTranslatedText('removedCardDetail'),
+					                         'removalProcessUrl' => $paymentService->getTokenRemovalUrl(),
+								//'recurringPeriod'      => $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_recurring_period'),
 								'instalmentCycles' => explode(',', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles') )
-							]);	
-								
-                            $contentType = 'htmlContent';   
-                        } else {
-							// Handling the without form payment and redirection payment
-							if($paymentKey == 'NOVALNET_INVOICE')
-							{
-								$content = '';
-								$contentType = 'continue';
-								$serverRequestData = $paymentService->getRequestParameters($basket, $paymentKey);
-								$this->getLogger(__METHOD__)->error('request', $serverRequestData);
-								if (empty($serverRequestData['data']['customer']['first_name']) && empty($serverRequestData['data']['customer']['last_name'])) {
-										$content = $paymentHelper->getTranslatedText('nn_first_last_name_error');
-										$contentType = 'errorCode';   
-								 }
-								$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);
-							} 
-                        }
-                                $event->setValue($content);
-                                $event->setType($contentType);
-                        } 
+					   			
+					   ]);	
+					$this->getLogger(__METHOD__)->error('instalment', $paymentHelper->getNovalnetConfig(strtolower($paymentKey) . '_cycles'));
+				   $contentType = 'htmlContent';     
+				} else {
+				$sessionStorage->getPlugin()->setValue('nnPaymentData', $serverRequestData);
+				//$sessionStorage->getPlugin()->setValue('nnPaymentUrl', $serverRequestData['url']);
+				$content = '';
+				$contentType = 'continue';
+				}
+		        }
+							$event->setValue($content);
+							$event->setType($contentType);
+                    } 
                 });
 
         // Listen for the event that executes the payment
@@ -207,18 +201,10 @@ class NovalnetServiceProvider extends ServiceProvider
                     $sessionStorage->getPlugin()->setValue('nnOrderNo',$event->getOrderId());
                     $sessionStorage->getPlugin()->setValue('mop',$event->getMop());
                     $paymentKey = $paymentHelper->getPaymentKeyByMop($event->getMop());
-
-                    if(!$paymentService->isRedirectPayment($paymentKey)) {
-			 $paymentService->performServerCall();
-                         $paymentService->validateResponse();
-                    } else {
-                        $paymentProcessUrl = $paymentService->getRedirectPaymentUrl();
-                        $event->setType('redirectUrl');
-                        $event->setValue($paymentProcessUrl);
-                    }
+					$paymentService->performServerCall();
+					$paymentService->validateResponse();
                 }
-            }
-        );
+            });
         
      // Invoice PDF Generation
     

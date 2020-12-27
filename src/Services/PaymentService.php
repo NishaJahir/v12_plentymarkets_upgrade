@@ -155,26 +155,27 @@ class PaymentService
     {
         $nnPaymentData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
         $this->sessionStorage->getPlugin()->setValue('nnPaymentData', null);
-        $this->getLogger(__METHOD__)->error('validate response', $nnPaymentData);
+      
         $nnPaymentData['mop']            = $this->sessionStorage->getPlugin()->getValue('mop');
         $nnPaymentData['payment_method'] = strtolower($this->paymentHelper->getPaymentKeyByMop($nnPaymentData['mop']));
         
 		if(in_array($nnPaymentData['result']['status'], ['PENDING', 'SUCCESS'])) {
 		   $this->paymentHelper->createPlentyPayment($nnPaymentData);
 		}
-	    
+	  $this->getLogger(__METHOD__)->error('validate response updated', $nnPaymentData);    
 	    
         //$this->executePayment($nnPaymentData);
         
         $additionalInfo = $this->additionalInfo($nnPaymentData);
 	
-	if($nnPaymentData['payment_id'] == 96) {
+	if($nnPaymentData['payment_method'] == 'INSTALMENT_INVOICE') {
 		$instalmentInfo = [
-			'total_paid_amount' => $nnPaymentData['instalment_cycle_amount'],
-			'instalment_cycle_amount' => $nnPaymentData['instalment_cycle_amount'],
-			'paid_instalment' => $nnPaymentData['instalment_cycles_executed'],
-			'due_instalment' => $nnPaymentData['due_instalment_cycles'],
-			'next_instalment' => $nnPaymentData['next_instalment_date']
+			'total_paid_amount' => $nnPaymentData['instalment']['cycle_amount'],
+			'instalment_cycle_amount' => $nnPaymentData['instalment']['cycle_amount'],
+			'paid_instalment' => $nnPaymentData['instalment']['cycles_executed'],
+			'due_instalment_cycles' => $nnPaymentData['instalment']['pending_cycles'],
+			'next_instalment_date' => $nnPaymentData['instalment']['next_cycle_date'],
+			'future_instalment_date' => $nnPaymentData['instalment']['cycle_dates']
 		];
 	}
 
@@ -184,10 +185,11 @@ class PaymentService
             'tid'              => $nnPaymentData['transaction']['tid'],
             'ref_tid'          => $nnPaymentData['transaction']['tid'],
             'payment_name'     => $nnPaymentData['payment_method'],
+	    'customer_email'  => $nnPaymentData['customer']['email'],
             'order_no'         => $nnPaymentData['transaction']['order_no'],
             'additional_info'  => !empty($additionalInfo) ? json_encode($additionalInfo) : 0,
 	    'save_card_token'	=> !empty($nnPaymentData['transaction']['payment_data']['token']) ? $nnPaymentData['transaction']['payment_data']['token'] : 0,
-	    'masking_details'  => !empty($nnPaymentData['transaction']['payment_data']['token']) ? $this->saveAdditionalPaymentData ($nnPaymentData) : 0,
+	    'mask_details'  => !empty($nnPaymentData['transaction']['payment_data']['token']) ? $this->saveAdditionalPaymentData ($nnPaymentData) : 0,
 	    'instalment_info'  => !empty($instalmentInfo) ? json_encode($instalmentInfo) : 0,
         ];
        
@@ -523,17 +525,17 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			}
         }
 
-        if($this->isRedirectPayment($paymentKey))
-        {
-			$paymentRequestParameters['uniqid'] = $this->paymentHelper->getUniqueId();
-			$this->encodePaymentData($paymentRequestParameters);
-			$paymentRequestParameters['implementation'] = 'ENC';
-			$paymentRequestParameters['return_url'] = $paymentRequestParameters['error_return_url'] = $this->getReturnPageUrl();
-			$paymentRequestParameters['return_method'] = $paymentRequestParameters['error_return_method'] = 'POST';
-			if ($paymentKey != 'NOVALNET_CC') {
-				$paymentRequestParameters['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
-			}
-         }
+        //if($this->isRedirectPayment($paymentKey))
+       // {
+			//$paymentRequestParameters['uniqid'] = $this->paymentHelper->getUniqueId();
+			//$this->encodePaymentData($paymentRequestParameters);
+			//$paymentRequestParameters['implementation'] = 'ENC';
+			//$paymentRequestParameters['return_url'] = $paymentRequestParameters['error_return_url'] = $this->getReturnPageUrl();
+			//$paymentRequestParameters['return_method'] = $paymentRequestParameters['error_return_method'] = 'POST';
+			//if ($paymentKey != 'NOVALNET_CC') {
+				//$paymentRequestParameters['user_variable_0'] = $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl;
+			//}
+        // }
         
         //return $url;
     }
@@ -592,7 +594,12 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     {
         return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/payment/novalnet/redirectPayment/';
     }
-
+    
+    public function getTokenRemovalUrl()
+    {
+        return $this->webstoreHelper->getCurrentWebstoreConfiguration()->domainSsl . '/payment/novalnet/removeCard/';
+    }
+	
     /**
     * Get the payment process URL by using plenty payment key
     *
@@ -895,10 +902,20 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			$serverRequestData = $this->sessionStorage->getPlugin()->getValue('nnPaymentData');
 			//$paymentRequestUrl = $this->sessionStorage->getPlugin()->getValue('nnPaymentUrl');
 			$serverRequestData['data']['transaction']['order_no'] = $this->sessionStorage->getPlugin()->getValue('nnOrderNo');
+			if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
+			    $serverRequestData['data']['transaction']['return_url'] = $serverRequestData['data']['transaction']['error_return_url'] = $this->getReturnPageUrl();	
+			}
 			$this->getLogger(__METHOD__)->error('request formation', $serverRequestData);
 			$response = $this->paymentHelper->executeCurl(json_encode($serverRequestData['data']), $serverRequestData['url']);
-		       
-			
+		        $this->getLogger(__METHOD__)->error('checksum response', $response);
+			 if($serverRequestData['data']['transaction']['payment_type'] == 'PAYPAL') {
+				 $this->getLogger(__METHOD__)->error('checksum URL', $response['result']['redirect_url']);
+				 if (!empty($response['result']['redirect_url']) && !empty($response['transaction']['txn_secret'])) {
+					 $this->getLogger(__METHOD__)->error('checksum URL called', $response['result']['redirect_url']);
+            				header('Location: ' . $response['result']['redirect_url']);
+					 exit;
+        }
+			 } else {
 				$this->getLogger(__METHOD__)->error('response formation', $response);
 			$notificationMessage = $this->paymentHelper->getTranslatedText('payment_success');
 			$isPaymentSuccess = isset($response['result']['status']) && $response['result']['status'] == 'SUCCESS';
@@ -906,15 +923,17 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 			{           
 				if(isset($serverRequestData['data']['pan_hash']))
 				{
-					unset($serverRequestData['data']['pan_hash']);
+				   unset($serverRequestData['data']['pan_hash']);
 				}
-				
 				$this->sessionStorage->getPlugin()->setValue('nnPaymentData', array_merge($serverRequestData, $response));
 				$this->pushNotification($notificationMessage, 'success', 100);
 				
 			} else {
 				$this->pushNotification($notificationMessage, 'error', 100);
 			}
+				
+			}
+
 		} catch (\Exception $e) {
             $this->getLogger(__METHOD__)->error('performServerCall failed.', $e);
             return [
@@ -923,6 +942,8 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
             ];
         }
 	}
+	
+	
 
     /**
      * Build the additional params
@@ -956,7 +977,14 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 	 
     }
 	
-   public function checkPaymentDisplayConditions(Basket $basket, $paymentKey)
+   /**
+    * Show the Payment based on payment conditions
+    *
+    * @param object $basket
+    * @param string $paymentKey
+    * @return string
+    */
+    public function checkPaymentDisplayConditions(Basket $basket, $paymentKey)
     {
 		if (!is_null($basket) && $basket instanceof Basket) {
 			$paymentActive = $this->config->get('Novalnet.'.$paymentKey.'_payment_active');
@@ -968,14 +996,19 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				// Check instalment cycles
 				$instalementCyclesCheck = false;
 				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKey . '_cycles'));
+				$this->getLogger(__METHOD__)->error('corrected cycles', $instalementCycles);
 				if($minimumAmount >= 1998) {
 					foreach($instalementCycles as $key => $value) {
 						$cycleAmount = ($amount / $value);
 						if($cycleAmount >= 999) {
+							$this->getLogger(__METHOD__)->error('corrected cycles val', $value);
 							$instalementCyclesCheck = true;
 						}
 					}
 				}
+				$this->getLogger(__METHOD__)->error('min', $minimumAmount);
+				$this->getLogger(__METHOD__)->error('amount', $amount);
+				$this->getLogger(__METHOD__)->error('insta', $instalementCyclesCheck);
 				// Address validation
 				$billingAddressId = $basket->customerInvoiceAddressId;
 				$billingAddress = $this->addressRepository->findAddressById($billingAddressId);
@@ -985,6 +1018,7 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 				// Get country validation value
 				$billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
 				$countryValidation = $this->EuropeanUnionCountryValidation($paymentKey, $billingShippingDetails['billing']['country_code']);
+				$this->getLogger(__METHOD__)->error('country', $countryValidation);
 				// Check the payment condition
 				if((((int) $amount >= (int) $minimumAmount && $instalementCyclesCheck && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
 				)) {
@@ -996,33 +1030,26 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
 		}
 		return false;
     }
-	
-	/**
-    * Check if the customer from EU country or not
-    *
-    * @param string $paymentKey
-    * @param string $countryCode
-    * 
-    * @return bool
-    */
-    public function EuropeanUnionCountryValidation($paymentKey, $countryCode) 
+    
+    public function EuropeanUnionCountryValidation($paymentKey, $countryCode)
     {
-        $allowB2B = $this->config->get('Novalnet.' . $paymentKey . '_allow_b2b_customer');
-        $europeanUnionCountryCodes =  [
+		$allowB2B = $this->paymentHelper->getNovalnetConfig($paymentKey . '_allow_b2b_customer');
+	    $this->getLogger(__METHOD__)->error('allow b2b', $allowB2B);
+		$europeanUnionCountryCodes =  [
             'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
             'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL',
             'PT', 'RO', 'SE', 'SI', 'SK', 'UK', 'CH'
         ];
-        if(in_array($countryCode, ['DE', 'AT', 'CH'])) {
-            $countryValidation = true;
-        } elseif($allowB2B == true && in_array($countryCode, $europeanUnionCountryCodes)) {
-            $countryValidation = true;
-        } else {
-            $countryValidation = false;
-        }
+		if(in_array($countryCode, ['DE', 'AT', 'CH'])) {
+			$countryValidation = true;
+		} elseif($allowB2B == true && in_array($countryCode, $europeanUnionCountryCodes)) {
+			$countryValidation = true;
+		} else {
+			$countryValidation = false;
+		}
+	    $this->getLogger(__METHOD__)->error('allow b2b condn', $countryValidation);
         return $countryValidation;
     }
 	
 	
-    
 }

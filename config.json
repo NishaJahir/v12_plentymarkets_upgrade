@@ -84,6 +84,15 @@
                   "defaultValue":false
                }
             },
+            "novalnet_cc_display_inline_form":{
+               "type":"checkBox",
+               "required":false,
+               "label":"Config.inlineFormLabel",
+               "options":{
+                  "tooltip":"Config.inlineFormTooltip",
+                  "defaultValue":true
+               }
+            },
             "novalnet_cc_payment_name":{
                "type":"inputText",
                "required":false,
@@ -117,21 +126,11 @@
                }
             },
             "novalnet_cc_shopping_type":{
-               "type":"selectBox",
+               "type":"checkBox",
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":"true",
-                  "selectBoxValues":[
-                     {
-                        "value":"true",
-                        "caption":"Config.enableOption"
-                     },
-                     {
-                        "value":"false",
-                        "caption":"Config.disableOption"
-                     }
-                  ]
+                  "defaultValue":true
                }
             },
             "novalnet_cc_payment_action":{
@@ -316,21 +315,11 @@
                }
             },
             "novalnet_sepa_shopping_type":{
-               "type":"selectBox",
+               "type":"checkBox",
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":"true",
-                  "selectBoxValues":[
-                     {
-                        "value":"true",
-                        "caption":"Config.enableOption"
-                     },
-                     {
-                        "value":"false",
-                        "caption":"Config.disableOption"
-                     }
-                  ]
+                  "defaultValue":true
                }
             },
             "novalnet_sepa_payment_action":{
@@ -565,22 +554,21 @@
                   "defaultValue":""
                }
             },
-            "novalnet_instalment_allow_b2b_customer":{
-               "type":"selectBox",
+           "novalnet_instalment_invoice_allow_b2b_customer":{
+               "type":"checkBox",
                "required":false,
                "label":"Config.allowB2bCustomerLabel",
                "options":{
-                  "defaultValue":"true",
-                  "selectBoxValues":[
-                     {
-                        "value":"true",
-                        "caption":"Config.enableOption"
-                     },
-                     {
-                        "value":"false",
-                        "caption":"Config.disableOption"
-                     }
-                  ]
+                  "defaultValue":false
+               }
+            },
+            "novalnet_instalment_invoice_min_amount":{  
+               "type":"inputText",
+               "required":false,
+               "label":"Config.minAmountLabel",
+               "options":{  
+                  "tooltip":"Config.minAmountTooltip",
+                  "defaultValue":""
                }
             },
             "novalnet_instalment_invoice_cycles":{
@@ -701,21 +689,11 @@
                }
             },
             "novalnet_paypal_shopping_type":{
-               "type":"selectBox",
+               "type":"checkBox",
                "required":false,
                "label":"Config.shoppingTypeLabel",
                "options":{
-                  "defaultValue":"true",
-                  "selectBoxValues":[
-                     {
-                        "value":"true",
-                        "caption":"Config.enableOption"
-                     },
-                     {
-                        "value":"false",
-                        "caption":"Config.disableOption"
-                     }
-                  ]
+                  "defaultValue":true
                }
             },
             "novalnet_paypal_payment_action":{

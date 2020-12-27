@@ -71,7 +71,7 @@ class CreateAndUpdatePaymentMethods
         $payment_data = $this->paymentHelper->getPaymentMethodByKey($paymentKey);
         if ($payment_data == 'no_paymentmethod_found')
         {
-            $paymentMethodData = ['pluginKey'  => 'plenty_novalnet',
+            $paymentMethodData = ['pluginKey'  => 'Novalnet',
                                 'paymentKey' => $paymentKey,
                                 'paymentName' => $paymentName
                                ];

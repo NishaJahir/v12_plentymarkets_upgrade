@@ -37,6 +37,7 @@ class TransactionService
      */
     public function saveTransaction($transactionData)
     {
+	    $this->getLogger(__METHOD__)->error('Callback table', $transactionData);
         try {
             $database = pluginApp(DataBase::class);
             $transaction = pluginApp(TransactionLog::class);
@@ -47,8 +48,11 @@ class TransactionService
             $transaction->transactionDatetime = date('Y-m-d H:i:s');
             $transaction->tid                 = $transactionData['tid'];
             $transaction->paymentName         = $transactionData['payment_name'];
-            $transaction->additionalInfo      = !empty($transactionData['additional_info']) ? $transactionData['additional_info'] : '0';
-	    $transaction->instalmentInfo      = !empty($transactionData['instalment_info']) ? $transactionData['instalment_info'] : '0';
+	    $transaction->customerEmail       = $transactionData['customer_email'];
+         $transaction->additionalInfo      = !empty($transactionData['additional_info']) ? $transactionData['additional_info'] : null;
+	$transaction->saveOneTimeToken      = !empty($transactionData['save_card_token']) ? $transactionData['save_card_token'] : "";
+	$transaction->maskingDetails      = !empty($transactionData['mask_details']) ? $transactionData['mask_details'] : null;
+	$transaction->instalmentInfo      = !empty($transactionData['instalment_info']) ? $transactionData['instalment_info'] : null;
             
             $database->save($transaction);
         } catch (\Exception $e) {
@@ -91,6 +95,32 @@ class TransactionService
         $orderDetail->additionalInfo = json_encode($additionalInfo); 
 	     $this->getLogger(__METHOD__)->error('update', $orderDetail);
        $database->save($orderDetail);
+    }
+	
+	/**
+     * Delete an item from the To Do list
+     *
+     * @param int $id
+     * @return ToDo
+     */
+    public function removeCardDetails($key, $requestData)
+    {
+        /**
+         * @var DataBase $database
+         */
+	     $this->getLogger(__METHOD__)->error('delete service', $requestData); 
+        $database = pluginApp(DataBase::class);
+        $orderDetails = $database->query(TransactionLog::class)->where($key, '=', $requestData['token'])->get();
+	 $this->getLogger(__METHOD__)->error('details123', $orderDetails);
+	$orderDetail = $orderDetails[0];
+	$orderDetail->saveOneTimeToken = "";
+	$orderDetail->maskingDetails = null;
+	$database->save($orderDetail);
+        //$database->delete($deleteToken[0]);
+	    
+	    $final_result = $database->query(TransactionLog::class)->where('tid', '=', $orderDetail->tid)->get();
+	    $this->getLogger(__METHOD__)->error('result123', $final_result); 
+        return $orderDetail;
     }
     
 }
