@@ -982,53 +982,11 @@ $this->getLogger(__METHOD__)->info('servoce request info', $paymentRequestParame
     *
     * @param object $basket
     * @param string $paymentKey
-    * @return string
+    * @return bool
     */
     public function checkPaymentDisplayConditions(Basket $basket, $paymentKey)
     {
-		if (!is_null($basket) && $basket instanceof Basket) {
-			$paymentActive = $this->config->get('Novalnet.'.$paymentKey.'_payment_active');
-			if ($paymentActive == 'true') {
-				// Minimum amount validation
-				$minimumAmount = $this->paymentHelper->getNovalnetConfig($paymentKey . '_min_amount');
-				$minimumAmount = ((preg_match('/^[0-9]*$/', $minimumAmount) && $minimumAmount >= '1998')  ? $minimumAmount : '1998');
-				$amount        = (sprintf('%0.2f', $basket->basketAmount) * 100);
-				// Check instalment cycles
-				$instalementCyclesCheck = false;
-				$instalementCycles = explode(',', $this->paymentHelper->getNovalnetConfig($paymentKey . '_cycles'));
-				$this->getLogger(__METHOD__)->error('corrected cycles', $instalementCycles);
-				if($minimumAmount >= 1998) {
-					foreach($instalementCycles as $key => $value) {
-						$cycleAmount = ($amount / $value);
-						if($cycleAmount >= 999) {
-							$this->getLogger(__METHOD__)->error('corrected cycles val', $value);
-							$instalementCyclesCheck = true;
-						}
-					}
-				}
-				$this->getLogger(__METHOD__)->error('min', $minimumAmount);
-				$this->getLogger(__METHOD__)->error('amount', $amount);
-				$this->getLogger(__METHOD__)->error('insta', $instalementCyclesCheck);
-				// Address validation
-				$billingAddressId = $basket->customerInvoiceAddressId;
-				$billingAddress = $this->addressRepository->findAddressById($billingAddressId);
-				if(!empty($basket->customerShippingAddressId)){
-					$shippingAddress = $this->addressRepository->findAddressById($basket->customerShippingAddressId);
-				}
-				// Get country validation value
-				$billingShippingDetails = $this->getBillingShippingDetails($billingAddress, $shippingAddress);
-				$countryValidation = $this->EuropeanUnionCountryValidation($paymentKey, $billingShippingDetails['billing']['country_code']);
-				$this->getLogger(__METHOD__)->error('country', $countryValidation);
-				// Check the payment condition
-				if((((int) $amount >= (int) $minimumAmount && $instalementCyclesCheck && $countryValidation && $basket->currency == 'EUR' && ($billingShippingDetails['billing'] === $billingShippingDetails['shipping']) )
-				)) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-		return false;
+		return true;
     }
     
     public function EuropeanUnionCountryValidation($paymentKey, $countryCode)
