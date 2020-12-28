@@ -31,6 +31,10 @@ use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Novalnet\Constants\NovalnetConstants;
 use Novalnet\Services\TransactionService;
+use Novalnet\Services\PaymentService;
+use Plenty\Modules\Basket\Models\Basket;
+use Plenty\Modules\Basket\Contracts\BasketRepositoryContract;
+
 
 /**
  * Class PaymentHelper
@@ -94,6 +98,16 @@ class PaymentHelper
      * @var transaction
      */
     private $transaction;
+    
+    /**
+     * @var PaymentService
+     */
+    private $paymentService;
+    
+    /**
+     * @var Basket
+     */
+    private $basket;
 
     /**
      * Constructor.
@@ -116,6 +130,8 @@ class PaymentHelper
                                 ConfigRepository $configRepository,
                                 FrontendSessionStorageFactoryContract $sessionStorage,
                                 TransactionService $tranactionService,
+                                PaymentService $paymentService,
+                                BasketRepositoryContract $basket
                                 CountryRepositoryContract $countryRepository
                               )
     {
@@ -127,6 +143,8 @@ class PaymentHelper
         $this->config                         = $configRepository;
         $this->sessionStorage                 = $sessionStorage;
         $this->transaction                    = $tranactionService;
+        $this->paymentService                 = $paymentService;
+        $this->basket                         = $basket->load();
         $this->countryRepository              = $countryRepository;
     }
 
@@ -546,6 +564,22 @@ class PaymentHelper
             $data[$items[0]] = $items[1];
         }
         return $data;
+    }
+    
+    /**
+    * Check the payment activate params
+    *
+    * return bool
+    */
+    public function paymentActive()
+    {
+        $paymentDisplay = false;
+        if (is_numeric($this->getNovalnetConfig('novalnet_vendor_id')) && !empty($this->getNovalnetConfig('novalnet_auth_code')) && is_numeric($this->getNovalnetConfig('novalnet_product_id')) 
+        && is_numeric($this->getNovalnetConfig('novalnet_tariff_id')) && !empty($this->getNovalnetConfig('novalnet_access_key')))
+        {
+            $paymentDisplay = true;
+        }
+        return $paymentDisplay;
     }
 
     /**
